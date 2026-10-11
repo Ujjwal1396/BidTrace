@@ -1,10 +1,10 @@
 providers = ["python"]
 
 [phases.setup]
-nixPkgs = ["python310"]
+nixPkgs = ["python3", "gcc"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3 -m pip install -r requirements.txt"]
 
 [start]
-cmd = "python server.py"
+cmd = "python3 server.py"
