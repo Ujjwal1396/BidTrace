@@ -11,7 +11,7 @@
 > 📄 **Master Audit & Vetting Dossier:**  
 > For the exhaustive technical specification, Anchor account layouts, cryptographic domain formulas, Olympic Trimmed Mean math, and Colosseum hackathon rubric, see:  
 > **[`BIDTRACE_MASTER_DOSSIER.md`](file:///C:/Users/ujjwa/.gemini/antigravity/scratch/bidtrace/BIDTRACE_MASTER_DOSSIER.md)**  
-> **GitHub Repository:** [https://github.com/Ujjwal1396/BitTrace.git](https://github.com/Ujjwal1396/BitTrace.git)
+> **GitHub Repository:** [https://github.com/Ujjwal1396/BidTrace.git](https://github.com/Ujjwal1396/BidTrace.git)
 
 ---
 

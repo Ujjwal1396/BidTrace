@@ -2,7 +2,7 @@
 ## For Colosseum Hackathon Copilot & LLM Security Council Evaluation
 
 **Project Name:** BidTrace 3.0  
-**Repository:** [https://github.com/Ujjwal1396/BitTrace.git](https://github.com/Ujjwal1396/BitTrace.git) (`main` branch)  
+**Repository:** [https://github.com/Ujjwal1396/BidTrace.git](https://github.com/Ujjwal1396/BidTrace.git) (`main` branch)  
 **Latest Audit Commit:** `8d5a43b` (Targets 1, 2, and 3 fully resolved & verified)  
 **Solana Devnet Program ID:** `x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ`  
 **Devnet ProgramData Address:** `31T65nDyKp5Jyok1AE4YsCLH1nxEbnGWVBqvZjtf9iYp`  

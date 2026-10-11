@@ -3,7 +3,7 @@
 
 **Document Release:** Version 3.0.0 (Master Audit & Vetting Edition)  
 **Date of Audit:** October 2026  
-**GitHub Repository:** [https://github.com/Ujjwal1396/BitTrace.git](https://github.com/Ujjwal1396/BitTrace.git) (`origin/main`)  
+**GitHub Repository:** [https://github.com/Ujjwal1396/BidTrace.git](https://github.com/Ujjwal1396/BidTrace.git) (`origin/main`)  
 **Solana Devnet Program ID:** [`x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ`](https://explorer.solana.com/address/x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ?cluster=devnet)  
 **Devnet ProgramData Address:** [`31T65nDyKp5Jyok1AE4YsCLH1nxEbnGWVBqvZjtf9iYp`](https://explorer.solana.com/address/31T65nDyKp5Jyok1AE4YsCLH1nxEbnGWVBqvZjtf9iYp?cluster=devnet)  
 **Authority / Relayer Wallet:** [`GFRRqHMPekLkEUPDzwLXnBoETUU1EFrfFoZxiCWUwSzU`](https://explorer.solana.com/address/GFRRqHMPekLkEUPDzwLXnBoETUU1EFrfFoZxiCWUwSzU?cluster=devnet)  

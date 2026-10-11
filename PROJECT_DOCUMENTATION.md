@@ -2,7 +2,7 @@
 
 **Protocol Name:** BidTrace  
 **Specification Version:** 1.1.0  
-**Repository:** [https://github.com/Ujjwal1396/BitTrace](https://github.com/Ujjwal1396/BitTrace)  
+**Repository:** [https://github.com/Ujjwal1396/BidTrace](https://github.com/Ujjwal1396/BidTrace)  
 **Target Platform:** Solana / Anchor Framework (Anchor 0.30+)  
 **Reference Implementation:** Python 3.10+ Cryptographic Engine & Deterministic State Machine  
 
