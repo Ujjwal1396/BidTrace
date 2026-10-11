@@ -477,6 +477,7 @@ describe("BidTrace 3.0: Incorruptible Two-Envelope & Blinded Scoring Protocol", 
     const bidB = await program.account.dualBidCommitment.fetch(bidBPda);
     // Trimmed mean drops min (6200) and max (9800), leaving [6300, 6400, 6500] -> avg = 6400 bps (< 7500)
     assert.strictEqual(bidB.isTechQualified, false);
+    assert.strictEqual(bidB.isTechFinalized, true);
     assert.ok(bidB.technicalScoreBps < 7500);
 
     // Verify Rogue Evaluator was permanently flagged in account state
@@ -501,7 +502,87 @@ describe("BidTrace 3.0: Incorruptible Two-Envelope & Blinded Scoring Protocol", 
 
     const bidA = await program.account.dualBidCommitment.fetch(bidAPda);
     assert.strictEqual(bidA.isTechQualified, true);
+    assert.strictEqual(bidA.isTechFinalized, true);
     assert.ok(bidA.technicalScoreBps >= 7500);
+
+    // 3. SEC-07 Target 2: Double Finalization Guard & Total Qualified Drift Prevention
+    // Re-evaluating Qualified Bidder A must fail with TechnicalScoreAlreadyFinalized
+    try {
+      await program.methods
+        .finalizeTechnicalScores()
+        .accounts({
+          tender: tenderPda,
+          committee: committeePda,
+          bidCommitment: bidAPda,
+          authority: authority.publicKey,
+        })
+        .remainingAccounts(gradesA.map(g => ({
+          pubkey: g.pda,
+          isWritable: true,
+          isSigner: false,
+        })))
+        .rpc();
+      assert.fail("Double finalization of qualified Bidder A should fail");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("TechnicalScoreAlreadyFinalized") || err.toString().includes("6046"),
+        `Expected TechnicalScoreAlreadyFinalized, got: ${err}`
+      );
+    }
+
+    // Re-evaluating Disqualified Bidder B must fail with TechnicalScoreAlreadyFinalized
+    try {
+      await program.methods
+        .finalizeTechnicalScores()
+        .accounts({
+          tender: tenderPda,
+          committee: committeePda,
+          bidCommitment: bidBPda,
+          authority: authority.publicKey,
+        })
+        .remainingAccounts(gradesB.map(g => ({
+          pubkey: g.pda,
+          isWritable: true,
+          isSigner: false,
+        })))
+        .rpc();
+      assert.fail("Double finalization of disqualified Bidder B should fail");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("TechnicalScoreAlreadyFinalized") || err.toString().includes("6046"),
+        `Expected TechnicalScoreAlreadyFinalized, got: ${err}`
+      );
+    }
+
+    // Impostor authority must fail with authority constraint check
+    const impostorKeypair = anchor.web3.Keypair.generate();
+    try {
+      await program.methods
+        .finalizeTechnicalScores()
+        .accounts({
+          tender: tenderPda,
+          committee: committeePda,
+          bidCommitment: bidAPda,
+          authority: impostorKeypair.publicKey,
+        })
+        .remainingAccounts(gradesA.map(g => ({
+          pubkey: g.pda,
+          isWritable: true,
+          isSigner: false,
+        })))
+        .signers([impostorKeypair])
+        .rpc();
+      assert.fail("Unauthorized authority should fail");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("ConstraintHasOne") || err.toString().includes("2001"),
+        `Expected ConstraintHasOne error, got: ${err}`
+      );
+    }
+
+    // Invariant assertion: totalTechQualified remains strictly 1 (no drift)
+    const tenderFetch = await program.account.tender.fetch(tenderPda);
+    assert.strictEqual(tenderFetch.totalTechQualified, 1);
   });
 
   it("Test 7 (Commercial Secrecy Invariant): Disqualified Bidder B is strictly prevented from unsealing Financial Envelope", async () => {
@@ -1538,6 +1619,304 @@ describe("BidTrace 3.0: Incorruptible Two-Envelope & Blinded Scoring Protocol", 
 
     const fetchAppRevealed = await program.account.dualBidCommitment.fetch(bAppPda);
     assert.strictEqual(fetchAppRevealed.isTechRevealed, true);
+  });
+
+  it("Test 8e (SEC-07 Target 2 Fix): Post-Award State Machine Lockout - TenderNotTechnicalEvaluation", async () => {
+    // Calling finalizeTechnicalScores after award must strictly fail with TenderNotTechnicalEvaluation (6009)
+    try {
+      await program.methods
+        .finalizeTechnicalScores()
+        .accounts({
+          tender: tenderPda,
+          committee: committeePda,
+          bidCommitment: bidAPda,
+          authority: authority.publicKey,
+        })
+        .remainingAccounts(gradesA.map(g => ({
+          pubkey: g.pda,
+          isWritable: true,
+          isSigner: false,
+        })))
+        .rpc();
+      assert.fail("Finalization on awarded tender should fail with TenderNotTechnicalEvaluation");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("TenderNotTechnicalEvaluation") || err.toString().includes("6009"),
+        `Expected TenderNotTechnicalEvaluation, got: ${err}`
+      );
+    }
+  });
+
+  it("Test 8f (SEC-08 Target 3 Fix): Model A Pre-Qualified Merkle Whitelist Verification with Keccak-256 and SHA-256", async () => {
+    // 1. Keccak-256 pure JS implementation matching OpenZeppelin / solana_program::keccak
+    function keccak256(data: Buffer): Buffer {
+      const RC = [
+        0x0000000000000001n, 0x0000000000008082n, 0x800000000000808An, 0x8000000080008000n,
+        0x000000000000808Bn, 0x0000000080000001n, 0x8000000080008081n, 0x8000000000008009n,
+        0x000000000000008An, 0x0000000000000088n, 0x0000000080008009n, 0x000000008000000An,
+        0x000000008000808Bn, 0x800000000000008Bn, 0x8000000000008089n, 0x8000000000008003n,
+        0x8000000000008002n, 0x8000000000000080n, 0x000000000000800An, 0x800000008000000An,
+        0x8000000080008081n, 0x8000000000008080n, 0x0000000080000001n, 0x8000000080008008n,
+      ];
+      const ROTC = [
+        [0, 36, 3, 41, 18],
+        [1, 44, 10, 45, 2],
+        [62, 6, 43, 15, 61],
+        [28, 55, 25, 21, 56],
+        [27, 20, 39, 8, 14],
+      ];
+      function rol64(x: bigint, n: number): bigint {
+        const shift = BigInt(n % 64);
+        return ((x << shift) | (x >> (64n - shift))) & 0xFFFFFFFFFFFFFFFFn;
+      }
+      const state: bigint[][] = [
+        [0n, 0n, 0n, 0n, 0n],
+        [0n, 0n, 0n, 0n, 0n],
+        [0n, 0n, 0n, 0n, 0n],
+        [0n, 0n, 0n, 0n, 0n],
+        [0n, 0n, 0n, 0n, 0n],
+      ];
+      const rate = 136;
+      const padlen = rate - (data.length % rate);
+      const padding = padlen === 1 ? Buffer.from([0x81]) : Buffer.concat([Buffer.from([0x01]), Buffer.alloc(padlen - 2), Buffer.from([0x80])]);
+      const padded = Buffer.concat([data, padding]);
+
+      for (let blockIdx = 0; blockIdx < padded.length; blockIdx += rate) {
+        const block = padded.subarray(blockIdx, blockIdx + rate);
+        for (let i = 0; i < rate / 8; i++) {
+          const x = i % 5;
+          const y = Math.floor(i / 5);
+          state[x][y] ^= block.readBigUInt64LE(i * 8);
+        }
+        for (let r = 0; r < 24; r++) {
+          const C: bigint[] = [
+            state[0][0] ^ state[0][1] ^ state[0][2] ^ state[0][3] ^ state[0][4],
+            state[1][0] ^ state[1][1] ^ state[1][2] ^ state[1][3] ^ state[1][4],
+            state[2][0] ^ state[2][1] ^ state[2][2] ^ state[2][3] ^ state[2][4],
+            state[3][0] ^ state[3][1] ^ state[3][2] ^ state[3][3] ^ state[3][4],
+            state[4][0] ^ state[4][1] ^ state[4][2] ^ state[4][3] ^ state[4][4],
+          ];
+          const D: bigint[] = [
+            C[4] ^ rol64(C[1], 1),
+            C[0] ^ rol64(C[2], 1),
+            C[1] ^ rol64(C[3], 1),
+            C[2] ^ rol64(C[4], 1),
+            C[3] ^ rol64(C[0], 1),
+          ];
+          for (let x = 0; x < 5; x++) {
+            for (let y = 0; y < 5; y++) {
+              state[x][y] ^= D[x];
+            }
+          }
+          const B: bigint[][] = [
+            [0n, 0n, 0n, 0n, 0n],
+            [0n, 0n, 0n, 0n, 0n],
+            [0n, 0n, 0n, 0n, 0n],
+            [0n, 0n, 0n, 0n, 0n],
+            [0n, 0n, 0n, 0n, 0n],
+          ];
+          for (let x = 0; x < 5; x++) {
+            for (let y = 0; y < 5; y++) {
+              B[y][(2 * x + 3 * y) % 5] = rol64(state[x][y], ROTC[x][y]);
+            }
+          }
+          for (let x = 0; x < 5; x++) {
+            for (let y = 0; y < 5; y++) {
+              state[x][y] = (B[x][y] ^ ((~B[(x + 1) % 5][y]) & B[(x + 2) % 5][y])) & 0xFFFFFFFFFFFFFFFFn;
+            }
+          }
+          state[0][0] ^= RC[r];
+        }
+      }
+      const out = Buffer.alloc(32);
+      for (let i = 0; i < 4; i++) {
+        const x = i % 5;
+        const y = Math.floor(i / 5);
+        out.writeBigUInt64LE(state[x][y], i * 8);
+      }
+      return out;
+    }
+
+    function hashPairKeccak(a: Buffer, b: Buffer): Buffer {
+      return a.compare(b) <= 0 ? keccak256(Buffer.concat([a, b])) : keccak256(Buffer.concat([b, a]));
+    }
+
+    function hashPairSha256(a: Buffer, b: Buffer): Buffer {
+      return a.compare(b) <= 0
+        ? crypto.createHash("sha256").update(Buffer.concat([a, b])).digest()
+        : crypto.createHash("sha256").update(Buffer.concat([b, a])).digest();
+    }
+
+    // Participants for Model A Tender
+    const bidderWl1 = anchor.web3.Keypair.generate();
+    const bidderWl2 = anchor.web3.Keypair.generate();
+    const bidderImpostor = anchor.web3.Keypair.generate();
+
+    for (const kp of [bidderWl1, bidderWl2, bidderImpostor]) {
+      const sig = await provider.connection.requestAirdrop(kp.publicKey, 2e9);
+      await provider.connection.confirmTransaction(sig);
+    }
+
+    // 2. Build OpenZeppelin sorted-pair Merkle Tree (Keccak-256)
+    const leaf1K = keccak256(bidderWl1.publicKey.toBuffer());
+    const leaf2K = keccak256(bidderWl2.publicKey.toBuffer());
+    const rootK = hashPairKeccak(leaf1K, leaf2K);
+
+    const tenderIdK = "TENDER-MODEL-A-KECCAK";
+    const [tenderKPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("tender"), authority.publicKey.toBuffer(), Buffer.from(tenderIdK)],
+      program.programId
+    );
+
+    const curSlotK = await provider.connection.getSlot();
+    const subSlotK = new anchor.BN(curSlotK + 100);
+
+    await program.methods
+      .initializeTender(
+        tenderIdK,
+        Array.from(Buffer.alloc(32)),
+        { preQualifiedWhitelist: {} },
+        { qcbs: {} },
+        subSlotK,
+        subSlotK,
+        new anchor.BN(curSlotK + 200),
+        new anchor.BN(curSlotK + 300),
+        Array.from(rootK),
+        7500,
+        7000,
+        3000
+      )
+      .accounts({
+        tender: tenderKPda,
+        authority: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    const [bid1KPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderKPda.toBuffer(), bidderWl1.publicKey.toBuffer()],
+      program.programId
+    );
+
+    // Whitelisted Bidder 1 commits using Keccak-256 proof [leaf2K] -> SUCCEEDS
+    await program.methods
+      .commitDualBid(
+        Array.from(crypto.randomBytes(32)),
+        Array.from(crypto.randomBytes(32)),
+        Array.from(crypto.randomBytes(32)),
+        { suretyService: {} },
+        new anchor.BN(0),
+        [Array.from(leaf2K)]
+      )
+      .accounts({
+        tender: tenderKPda,
+        bidCommitment: bid1KPda,
+        bidder: bidderWl1.publicKey,
+        feePayer: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([bidderWl1])
+      .rpc();
+
+    const fetchBid1K = await program.account.dualBidCommitment.fetch(bid1KPda);
+    assert.deepStrictEqual(fetchBid1K.adminStatus, { passed: {} });
+
+    // Impostor attempts to commit to Keccak tender -> FAILS with InvalidMerkleProof (6001)
+    const [impostorKPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderKPda.toBuffer(), bidderImpostor.publicKey.toBuffer()],
+      program.programId
+    );
+
+    try {
+      await program.methods
+        .commitDualBid(
+          Array.from(crypto.randomBytes(32)),
+          Array.from(crypto.randomBytes(32)),
+          Array.from(crypto.randomBytes(32)),
+          { suretyService: {} },
+          new anchor.BN(0),
+          [Array.from(leaf2K)]
+        )
+        .accounts({
+          tender: tenderKPda,
+          bidCommitment: impostorKPda,
+          bidder: bidderImpostor.publicKey,
+          feePayer: authority.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([bidderImpostor])
+        .rpc();
+      assert.fail("Impostor should be rejected with InvalidMerkleProof");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("InvalidMerkleProof") || err.toString().includes("6001"),
+        `Expected InvalidMerkleProof, got: ${err}`
+      );
+    }
+
+    // 3. Build Solana-native sorted-pair Merkle Tree (SHA-256)
+    const leaf1S = crypto.createHash("sha256").update(bidderWl1.publicKey.toBuffer()).digest();
+    const leaf2S = crypto.createHash("sha256").update(bidderWl2.publicKey.toBuffer()).digest();
+    const rootS = hashPairSha256(leaf1S, leaf2S);
+
+    const tenderIdS = "TENDER-MODEL-A-SHA256";
+    const [tenderSPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("tender"), authority.publicKey.toBuffer(), Buffer.from(tenderIdS)],
+      program.programId
+    );
+
+    const curSlotS = await provider.connection.getSlot();
+    const subSlotS = new anchor.BN(curSlotS + 100);
+
+    await program.methods
+      .initializeTender(
+        tenderIdS,
+        Array.from(Buffer.alloc(32)),
+        { preQualifiedWhitelist: {} },
+        { qcbs: {} },
+        subSlotS,
+        subSlotS,
+        new anchor.BN(curSlotS + 200),
+        new anchor.BN(curSlotS + 300),
+        Array.from(rootS),
+        7500,
+        7000,
+        3000
+      )
+      .accounts({
+        tender: tenderSPda,
+        authority: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    const [bid2SPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderSPda.toBuffer(), bidderWl2.publicKey.toBuffer()],
+      program.programId
+    );
+
+    // Whitelisted Bidder 2 commits using SHA-256 proof [leaf1S] -> SUCCEEDS
+    await program.methods
+      .commitDualBid(
+        Array.from(crypto.randomBytes(32)),
+        Array.from(crypto.randomBytes(32)),
+        Array.from(crypto.randomBytes(32)),
+        { suretyService: {} },
+        new anchor.BN(0),
+        [Array.from(leaf1S)]
+      )
+      .accounts({
+        tender: tenderSPda,
+        bidCommitment: bid2SPda,
+        bidder: bidderWl2.publicKey,
+        feePayer: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([bidderWl2])
+      .rpc();
+
+    const fetchBid2S = await program.account.dualBidCommitment.fetch(bid2SPda);
+    assert.deepStrictEqual(fetchBid2S.adminStatus, { passed: {} });
   });
 });
 

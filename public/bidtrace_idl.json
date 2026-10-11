@@ -939,6 +939,10 @@
             "type": "bool"
           },
           {
+            "name": "is_tech_finalized",
+            "type": "bool"
+          },
+          {
             "name": "technical_score_bps",
             "type": "u16"
           },
@@ -1400,6 +1404,11 @@
       "code": 6045,
       "name": "AdminAlreadyReviewed",
       "msg": "Bidder administrative compliance has already been evaluated."
+    },
+    {
+      "code": 6046,
+      "name": "TechnicalScoreAlreadyFinalized",
+      "msg": "Technical score for this bid has already been finalized."
     }
   ]
 }

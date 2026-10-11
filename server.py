@@ -263,10 +263,11 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
         # ----------------------------------------------------------------------
         if parsed_path == "/api/merkle/tree":
             bidders = data.get("bidders", [])
+            algorithm = data.get("algorithm", "sha256")
             if not bidders:
                 self.send_json({"status": "error", "message": "bidders array required"}, 400)
                 return
-            tree = MerkleTree(bidders)
+            tree = MerkleTree(bidders, algorithm=algorithm)
             self.send_json({
                 "status": "ok",
                 "root_hex": tree.root_hex,
@@ -277,13 +278,14 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
         if parsed_path == "/api/merkle/proof":
             bidders = data.get("bidders", [])
             target = data.get("bidder")
+            algorithm = data.get("algorithm", "sha256")
             if not bidders or not target:
                 self.send_json({"status": "error", "message": "bidders and bidder required"}, 400)
                 return
-            tree = MerkleTree(bidders)
+            tree = MerkleTree(bidders, algorithm=algorithm)
             try:
                 proof = tree.get_proof_hex(target)
-                is_valid = verify_merkle_proof(target, proof, tree.root_hex)
+                is_valid = verify_merkle_proof(target, proof, tree.root_hex, algorithm=algorithm)
                 self.send_json({
                     "status": "ok",
                     "bidder": target,

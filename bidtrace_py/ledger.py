@@ -298,6 +298,7 @@ class BidTraceLedger:
             # Phase 2 Technical
             "is_tech_revealed": False,
             "is_revealed": False, # compat
+            "is_tech_finalized": False,
             "technical_score_bps": 0,
             "is_tech_qualified": False,
 
@@ -546,6 +547,13 @@ class BidTraceLedger:
         if tender_pda not in self.tenders:
             raise ValueError("TenderNotFound")
         tender = self.tenders[tender_pda]
+
+        if authority_pubkey and tender.get("authority") and authority_pubkey != tender["authority"]:
+            raise ValueError("UnauthorizedAuthority: Signer is not tender authority")
+
+        if tender["status"] != TenderStatus.TechnicalEvaluation:
+            raise ValueError(f"TenderNotTechnicalEvaluation: Tender status is {tender['status']}")
+
         comm_pda = self.derive_committee_pda(tender_pda)
         comm = self.committees.get(comm_pda)
 
@@ -553,6 +561,12 @@ class BidTraceLedger:
         if bid_pda not in self.commitments:
             raise ValueError("BidNotFound")
         bid = self.commitments[bid_pda]
+
+        if not bid.get("is_tech_revealed"):
+            raise ValueError("TechNotRevealed: Technical proposal has not been unsealed")
+
+        if bid.get("is_tech_finalized"):
+            raise ValueError("TechnicalScoreAlreadyFinalized: Technical score for this bid has already been finalized")
 
         # Gather grades for this bidder
         grades: List[dict] = []
@@ -602,6 +616,7 @@ class BidTraceLedger:
                 raise ValueError("EmptyTrimmedScorePool: Severe variance dropped all evaluator scores")
             final_score = sum(accepted) // len(accepted)
 
+        bid["is_tech_finalized"] = True
         bid["technical_score_bps"] = final_score
         is_qualified = (final_score >= tender["min_tech_score_bps"])
         bid["is_tech_qualified"] = is_qualified

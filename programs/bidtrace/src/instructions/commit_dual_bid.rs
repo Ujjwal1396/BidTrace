@@ -59,25 +59,8 @@ pub fn handle_commit_dual_bid(
         );
         let proof = whitelist_proof.ok_or(BidTraceError::UnauthorizedBidder)?;
 
-        // Leaf = SHA256(bidder_pubkey)
-        let mut leaf_hasher = Sha256::new();
-        leaf_hasher.update(bidder_key.as_ref());
-        let mut current_hash: [u8; 32] = leaf_hasher.finalize().into();
-
-        for sibling in proof {
-            let mut node_hasher = Sha256::new();
-            if current_hash <= sibling {
-                node_hasher.update(&current_hash);
-                node_hasher.update(&sibling);
-            } else {
-                node_hasher.update(&sibling);
-                node_hasher.update(&current_hash);
-            }
-            current_hash = node_hasher.finalize().into();
-        }
-
         require!(
-            current_hash == tender.authorized_bidders_root,
+            verify_whitelist_proof(&bidder_key, &proof, tender.authorized_bidders_root),
             BidTraceError::InvalidMerkleProof
         );
 
@@ -116,6 +99,7 @@ pub fn handle_commit_dual_bid(
     bid.admin_rejection_code = 0;
 
     bid.is_tech_revealed = false;
+    bid.is_tech_finalized = false;
     bid.technical_score_bps = 0;
     bid.is_tech_qualified = false;
 
@@ -138,4 +122,107 @@ pub fn handle_commit_dual_bid(
     );
 
     Ok(())
+}
+
+/// Verifies a sorted-pair Merkle inclusion proof supporting both:
+/// 1. Keccak-256 (OpenZeppelin / EVM standard)
+/// 2. SHA-256 (Solana standard)
+pub fn verify_whitelist_proof(
+    bidder_key: &Pubkey,
+    proof: &[[u8; 32]],
+    expected_root: [u8; 32],
+) -> bool {
+    // 1. Keccak-256 path (OpenZeppelin / EVM standard)
+    let mut current_keccak = anchor_lang::solana_program::keccak::hash(bidder_key.as_ref()).0;
+    for sibling in proof {
+        let (first, second) = if current_keccak <= *sibling {
+            (&current_keccak, sibling)
+        } else {
+            (sibling, &current_keccak)
+        };
+        current_keccak = anchor_lang::solana_program::keccak::hashv(&[first, second]).0;
+    }
+    if current_keccak == expected_root {
+        return true;
+    }
+
+    // 2. SHA-256 path (Solana standard)
+    let mut leaf_hasher = Sha256::new();
+    leaf_hasher.update(bidder_key.as_ref());
+    let mut current_sha: [u8; 32] = leaf_hasher.finalize().into();
+
+    for sibling in proof {
+        let mut node_hasher = Sha256::new();
+        if current_sha <= *sibling {
+            node_hasher.update(&current_sha);
+            node_hasher.update(sibling);
+        } else {
+            node_hasher.update(sibling);
+            node_hasher.update(&current_sha);
+        }
+        current_sha = node_hasher.finalize().into();
+    }
+    current_sha == expected_root
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verify_whitelist_proof_keccak() {
+        let bidder1 = Pubkey::new_unique();
+        let bidder2 = Pubkey::new_unique();
+
+        let leaf1 = anchor_lang::solana_program::keccak::hash(bidder1.as_ref()).0;
+        let leaf2 = anchor_lang::solana_program::keccak::hash(bidder2.as_ref()).0;
+
+        let (first, second) = if leaf1 <= leaf2 {
+            (&leaf1, &leaf2)
+        } else {
+            (&leaf2, &leaf1)
+        };
+        let root = anchor_lang::solana_program::keccak::hashv(&[first, second]).0;
+
+        // Valid inclusion proofs
+        assert!(verify_whitelist_proof(&bidder1, &[leaf2], root));
+        assert!(verify_whitelist_proof(&bidder2, &[leaf1], root));
+
+        // Invalid bidder or wrong sibling
+        let impostor = Pubkey::new_unique();
+        assert!(!verify_whitelist_proof(&impostor, &[leaf2], root));
+        assert!(!verify_whitelist_proof(&bidder1, &[leaf1], root));
+    }
+
+    #[test]
+    fn test_verify_whitelist_proof_sha256() {
+        let bidder1 = Pubkey::new_unique();
+        let bidder2 = Pubkey::new_unique();
+
+        let mut h1 = Sha256::new();
+        h1.update(bidder1.as_ref());
+        let leaf1: [u8; 32] = h1.finalize().into();
+
+        let mut h2 = Sha256::new();
+        h2.update(bidder2.as_ref());
+        let leaf2: [u8; 32] = h2.finalize().into();
+
+        let mut h_root = Sha256::new();
+        if leaf1 <= leaf2 {
+            h_root.update(&leaf1);
+            h_root.update(&leaf2);
+        } else {
+            h_root.update(&leaf2);
+            h_root.update(&leaf1);
+        }
+        let root: [u8; 32] = h_root.finalize().into();
+
+        // Valid inclusion proofs
+        assert!(verify_whitelist_proof(&bidder1, &[leaf2], root));
+        assert!(verify_whitelist_proof(&bidder2, &[leaf1], root));
+
+        // Invalid bidder
+        let impostor = Pubkey::new_unique();
+        assert!(!verify_whitelist_proof(&impostor, &[leaf2], root));
+    }
 }

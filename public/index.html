@@ -213,7 +213,10 @@
                 </label>
               </div>
               <div id="buyer-merkle-section" class="space-y-1.5 text-xs pt-1">
-                <label class="block text-slate-400 text-[11px]">Authorized Subcontractor Whitelist (3 Pre-Approved EPCs)</label>
+                <div class="flex items-center justify-between">
+                  <label class="block text-slate-400 text-[11px]">Authorized Subcontractor Whitelist (3 Pre-Approved EPCs)</label>
+                  <span class="text-[10px] text-purple-400 mono font-semibold">Dual Keccak-256 / SHA-256</span>
+                </div>
                 <textarea id="buyer-whitelist-pks" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 mono text-[11px] text-slate-300" placeholder="List of public keys..."></textarea>
                 <div class="text-[11px] text-slate-400 flex items-center justify-between">
                   <span>Merkle Root Hash:</span>
@@ -1084,6 +1087,34 @@
       }
     }
 
+    let currentBuyerMerkleRoot = null;
+
+    async function updateBuyerMerkleRoot() {
+      const ta = document.getElementById("buyer-whitelist-pks");
+      const display = document.getElementById("buyer-merkle-root-display");
+      if (!ta || !display) return;
+      const lines = ta.value.trim().split("\n").map(s => s.trim()).filter(Boolean);
+      if (lines.length === 0) {
+        display.innerText = "No bidders specified";
+        currentBuyerMerkleRoot = null;
+        return;
+      }
+      try {
+        const res = await fetch("/api/merkle/tree", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bidders: lines, algorithm: "keccak256" })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+          currentBuyerMerkleRoot = data.root_hex;
+          display.innerText = `${data.root_hex.slice(0, 10)}...${data.root_hex.slice(-10)} (${lines.length} EPCs)`;
+        }
+      } catch (e) {
+        display.innerText = "Calculation error";
+      }
+    }
+
     // Buyer Portal Create
     async function createTenderFromBuyerPortal() {
       const tenderId = document.getElementById("buyer-tender-id").value;
@@ -1095,21 +1126,28 @@
       const finW = Number(document.getElementById("buyer-fin-weight").value);
       const minScore = Number(document.getElementById("buyer-min-score").value);
 
+      const isModelA = document.querySelector('input[name="diligence-model"]:checked')?.value === "model_a";
+
       logMessage(`Publishing OCDS 1.1 Tender Notice Release for '${tenderId}'...`, "normal");
       try {
+        const payload = {
+          tender_id: tenderId,
+          title: title,
+          buyer_name: buyerName,
+          estimated_amount: amount,
+          bond_amount: bondAmt,
+          tech_weight: techW,
+          fin_weight: finW,
+          min_tech_score: minScore
+        };
+        if (isModelA && currentBuyerMerkleRoot) {
+          payload.authorized_bidders_root = currentBuyerMerkleRoot;
+        }
+
         const res = await fetch("/api/tender/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tender_id: tenderId,
-            title: title,
-            buyer_name: buyerName,
-            estimated_amount: amount,
-            bond_amount: bondAmt,
-            tech_weight: techW,
-            fin_weight: finW,
-            min_tech_score: minScore
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.status === "ok") {
@@ -1241,6 +1279,8 @@
             logMessage(`Compiled OCDS Evaluation Release: ${data.ocds_release.id}`, "success");
           }
           await refreshStatus();
+        } else {
+          logMessage(`Finalize rejected (Double Finalization Guard): ${data.message || "Scores already finalized"}`, "error");
         }
       } catch (err) {
         logMessage(`Finalize error: ${err.message}`, "error");
@@ -1508,6 +1548,16 @@
 
     // Initialize
     window.addEventListener("DOMContentLoaded", () => {
+      const whitelistEl = document.getElementById("buyer-whitelist-pks");
+      if (whitelistEl && !whitelistEl.value) {
+        whitelistEl.value = [
+          "ACME1111111111111111111111111111111111111111",
+          "APEX2222222222222222222222222222222222222222",
+          "BECH3333333333333333333333333333333333333333"
+        ].join("\n");
+        whitelistEl.addEventListener("input", updateBuyerMerkleRoot);
+        updateBuyerMerkleRoot();
+      }
       refreshStatus();
       setInterval(refreshStatus, 3000);
     });

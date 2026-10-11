@@ -6,6 +6,7 @@ use crate::state::{DualBidCommitment, EvaluatorGrade, Tender, TenderCommittee, T
 pub struct FinalizeTechnicalScores<'info> {
     #[account(
         mut,
+        has_one = authority,
         constraint = tender.status == TenderStatus::TechnicalEvaluation @ BidTraceError::TenderNotTechnicalEvaluation,
     )]
     pub tender: Account<'info, Tender>,
@@ -21,6 +22,7 @@ pub struct FinalizeTechnicalScores<'info> {
         seeds = [b"bid", tender.key().as_ref(), bid_commitment.bidder.as_ref()],
         bump = bid_commitment.bump,
         constraint = bid_commitment.is_tech_revealed @ BidTraceError::TechNotRevealed,
+        constraint = !bid_commitment.is_tech_finalized @ BidTraceError::TechnicalScoreAlreadyFinalized,
     )]
     pub bid_commitment: Account<'info, DualBidCommitment>,
 
@@ -149,16 +151,14 @@ pub fn handle_finalize_technical_scores<'info>(
     };
 
     let final_score_bps = final_score as u16;
-    let was_qualified = bid_commitment.is_tech_qualified;
     let is_qualified = final_score_bps >= tender.min_tech_score_bps;
 
     bid_commitment.technical_score_bps = final_score_bps;
     bid_commitment.is_tech_qualified = is_qualified;
+    bid_commitment.is_tech_finalized = true;
 
-    if is_qualified && !was_qualified {
-        tender.total_tech_qualified += 1;
-    } else if !is_qualified && was_qualified {
-        tender.total_tech_qualified -= 1;
+    if is_qualified {
+        tender.total_tech_qualified = tender.total_tech_qualified.checked_add(1).unwrap();
     }
 
     msg!(

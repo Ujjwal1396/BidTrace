@@ -139,6 +139,9 @@ pub enum BidTraceError {
 
     #[msg("Bidder administrative compliance has already been evaluated.")]
     AdminAlreadyReviewed,
+
+    #[msg("Technical score for this bid has already been finalized.")]
+    TechnicalScoreAlreadyFinalized,
 }
 
 

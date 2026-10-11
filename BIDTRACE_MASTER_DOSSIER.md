@@ -254,6 +254,7 @@ pub struct DualBidCommitment {
 
     // Phase 2: Technical Merit Scoring
     pub is_tech_revealed: bool,             // 1 byte: True when blueprints & salt unsealed
+    pub is_tech_finalized: bool,            // 1 byte: True once Olympic Trimmed Mean finalized (idempotency guard)
     pub technical_score_bps: u16,           // 2 bytes: Olympic trimmed mean score (0 - 10,000)
     pub is_tech_qualified: bool,            // 1 byte: True if technical_score_bps >= min_tech_score_bps
 
@@ -313,7 +314,7 @@ pub struct EvaluatorGrade {
 | **05** | `reveal_technical_bid` | `tender`, `bid_commitment`, `revealer` | `BIDTRACE_TECH_V1` domain-separated SHA-256 check. Status must be `TechnicalEvaluation`. |
 | **06** | `commit_evaluator_grade` | `tender`, `committee`, `bid_commitment`, `evaluator_grade`, `evaluator`, `bidder` | Evaluator must belong to committee roster. Hash of sub-scores committed blindly. |
 | **07** | `reveal_evaluator_grade` | `tender`, `committee`, `evaluator_grade`, `evaluator`, `bidder` | Preimage verified against `BIDTRACE_GRADE_V1`. Sub-scores sum verified. |
-| **08** | `finalize_technical_scores` | `tender`, `committee`, `bid_commitment`, `authority`, `remaining_accounts` | Olympic Trimmed Mean calculated. Median outlier $>20\%$ flagged. Cutoff enforced. |
+| **08** | `finalize_technical_scores` | `tender`, `committee`, `bid_commitment`, `authority`, `remaining_accounts` | Olympic Trimmed Mean calculated. Median outlier $>20\%$ flagged. Cutoff enforced. Guarded against double finalization. |
 | **09** | `reveal_financial_envelope` | `tender`, `bid_commitment`, `revealer`, `bidder_recipient` | **Commercial Secrecy:** Throws `BidderTechnicallyDisqualified` if $S_{\text{tech}} < 75.00\%$. |
 | **10** | `record_award_qcbs` | `tender`, `winning_bid`, `authority` | **Anti-Lockout:** All qualified bids must be revealed. Winner has highest QCBS score. |
 
@@ -392,6 +393,8 @@ pub enum BidTraceError {
     SubScoresOutOfRange = 6032,
     #[msg("Technical and financial weights must sum exactly to 10,000 basis points (100%).")]
     InvalidWeights = 6033,
+    #[msg("Technical score for this bid has already been finalized.")]
+    TechnicalScoreAlreadyFinalized = 6046,
 }
 ```
 
@@ -537,16 +540,18 @@ Both Python and Node.js process identical OCDS releases and produce identical SH
 
 ### 10.1 Model A: Pre-Qualified Merkle Whitelist (Private Mega-EPCs)
 In private industrial construction (e.g. nuclear power plants, LNG export terminals), general contractors (Bechtel, Fluor) only accept bids from pre-vetted subcontractors.
-- EPC compiles approved public keys into an OpenZeppelin-compatible sorted-pair Merkle Tree (`bidtrace_py/merkle.py`).
+- EPC compiles approved public keys into a sorted-pair Merkle Tree (`bidtrace_py/merkle.py`).
+- **Dual-Hash Compatibility**: Supports both **OpenZeppelin / EVM-standard Keccak-256** (enabling direct interoperability with Solidity tooling and enterprise EPC databases) and **Solana-native SHA-256**.
 - Root hash `authorized_bidders_root` is stored in the `Tender` PDA.
-- Subcontractors submit an $O(\log N)$ inclusion proof in `commit_dual_bid`:
+- Subcontractors submit an $O(\log N)$ inclusion proof in `commit_dual_bid`, verified on-chain via `verify_whitelist_proof`:
   ```rust
-  let leaf = anchor_lang::solana_program::keccak::hash(bidder.key().as_ref()).0;
+  // On-chain dual-hash verification: accepts Keccak-256 (OpenZeppelin) or SHA-256 (Solana)
   require!(
-      verify_merkle_proof(&whitelist_proof.unwrap(), tender.authorized_bidders_root, leaf),
+      verify_whitelist_proof(&bidder_key, &proof, tender.authorized_bidders_root),
       BidTraceError::InvalidMerkleProof
   );
   ```
+- Any unauthorized bidder or forged proof is strictly rejected with `BidTraceError::InvalidMerkleProof (6001)`.
 
 ### 10.2 Model B: Post-Qualified Open Tender (World Bank / Sovereign Open)
 Under World Bank and UN regulations, tenders are open to all global firms to encourage competition. Qualifications (tax clearance, balance sheets, ISO certificates) are verified on the provisional winner:
@@ -688,8 +693,8 @@ The frontend (`public/index.html` & `public/ocds.js`) serves a professional mult
 ## 14. Comprehensive Test Matrix & Adversarial Verification
 
 ### 14.1 Test Suites Summary
-- **Python Unit & Integration Tests (`python -m unittest discover tests`):** **32 / 32 Passing** (2.1 seconds execution time).
-- **Anchor Solana Localnet Integration Tests (`anchor test --skip-build`):** **8 / 8 Passing** on local validator.
+- **Python Unit & Integration Tests (`python -m unittest discover tests`):** **78 / 78 Passing** (6.8 seconds execution time).
+- **Anchor Solana Localnet Integration Tests (`anchor test --skip-build`):** **14 / 14 Passing** on local validator.
 - **Cross-Language Hash Parity:** Verified byte-for-byte identical between Python 3.13 and Node.js v20.
 
 ### 14.2 Adversarial Attack Defenses Matrix
@@ -697,7 +702,7 @@ The frontend (`public/index.html` & `public/ocds.js`) serves a professional mult
 | Attack Vector | Attacker Action | Smart Contract Defense | Test File |
 | :--- | :--- | :--- | :--- |
 | **Late Bid Injection** | Attacker calls `commit_dual_bid` at `slot > submission_deadline_slot`. | Contract checks `Clock::get()?.slot <= submission_deadline_slot`; throws `SubmissionDeadlineExceeded`. | `test_engine.py`, `test_phase3_relayer.py` |
-| **Merkle Whitelist Fraud** | Non-whitelisted bidder submits forged Merkle proof. | On-chain Keccak-256 leaf verification fails; throws `InvalidMerkleProof`. | `test_phase3_relayer.py`, `test_phase4_verifier.py` |
+| **Merkle Whitelist Fraud** | Non-whitelisted bidder submits forged Merkle proof. | On-chain dual Keccak-256 (OpenZeppelin) / SHA-256 proof verification fails; throws `InvalidMerkleProof`. | `test_sec08_merkle_hashing_parity.py`, `bidtrace.ts` (Test 8f) |
 | **Price Tampering** | Bidder reveals price \$3.5M after committing to \$4.0M. | SHA-256 preimage check fails against `fin_commitment_hash`; throws `InvalidRevealHash`. | `test_engine.py`, `test_phase4_verifier.py` |
 | **Rogue Evaluator Favoritism** | Corrupt evaluator submits 98% score to inflate favored bidder. | Olympic Trimmed Mean drops max score; marks `is_outlier_flagged = true`. | `bidtrace.ts` (Test 6), `test_phase4_verifier.py` |
 | **Commercial Secrecy Breach** | Adversary attempts to call `reveal_financial_envelope` for disqualified bidder. | Contract checks `is_tech_qualified == true`; throws `BidderTechnicallyDisqualified`. | `bidtrace.ts` (Test 7), `test_phase4_verifier.py` |

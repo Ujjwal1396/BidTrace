@@ -106,6 +106,7 @@ pub struct DualBidCommitment {
 
     // Phase 2: Technical Merit Scoring
     pub is_tech_revealed: bool,
+    pub is_tech_finalized: bool,
     pub technical_score_bps: u16,
     pub is_tech_qualified: bool,
 
@@ -122,8 +123,8 @@ pub struct DualBidCommitment {
 }
 
 impl DualBidCommitment {
-    // 8 + 32 + 32 + 8 + 32*3 + 1 + 2 + 1 + 2 + 1 + 1 + 8 + 8 + 1 + 8 + 1 + 1 + 64 = 305
-    pub const LEN: usize = 8 + 32 + 32 + 8 + 96 + 3 + 4 + 17 + 11 + 64;
+    // 8 + 32 + 32 + 8 + 32*3 + 1 + 2 + 1 + 1 + 2 + 1 + 1 + 8 + 8 + 1 + 8 + 1 + 1 + 64 = 306
+    pub const LEN: usize = 8 + 32 + 32 + 8 + 96 + 3 + 5 + 17 + 11 + 64;
 }
 
 #[account]

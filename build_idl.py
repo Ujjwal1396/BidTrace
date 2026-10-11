@@ -294,6 +294,7 @@ def generate_idl():
                         {"name": "admin_status", "type": {"defined": {"name": "AdminStatus"}}},
                         {"name": "admin_rejection_code", "type": "u16"},
                         {"name": "is_tech_revealed", "type": "bool"},
+                        {"name": "is_tech_finalized", "type": "bool"},
                         {"name": "technical_score_bps", "type": "u16"},
                         {"name": "is_tech_qualified", "type": "bool"},
                         {"name": "is_fin_revealed", "type": "bool"},
@@ -442,7 +443,8 @@ def generate_idl():
             {"code": 6042, "name": "InvalidCompetingBid", "msg": "Invalid competing bid account provided."},
             {"code": 6043, "name": "IncompleteCommitteeGrades", "msg": "Committee roster is incomplete: all accredited evaluator grades must be submitted."},
             {"code": 6044, "name": "EmptyTrimmedScorePool", "msg": "Severe variance dropped all evaluator scores: empty trimmed score pool."},
-            {"code": 6045, "name": "AdminAlreadyReviewed", "msg": "Bidder administrative compliance has already been evaluated."}
+            {"code": 6045, "name": "AdminAlreadyReviewed", "msg": "Bidder administrative compliance has already been evaluated."},
+            {"code": 6046, "name": "TechnicalScoreAlreadyFinalized", "msg": "Technical score for this bid has already been finalized."}
         ]
     }
 

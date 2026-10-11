@@ -188,7 +188,7 @@ Verifies all 5 procurement lifecycle phases offline against raw Solana account p
 | Attack Scenario | Adversary Action | BidTrace Cryptographic / On-Chain Defense |
 | :--- | :--- | :--- |
 | **Late Bid Injection** | Insider attempts to submit bid at `slot > submission_deadline_slot`. | Smart contract verifies `Clock::get()?.slot <= submission_deadline_slot`; throws `SubmissionDeadlineExceeded`. |
-| **Merkle Whitelist Fraud** | Unauthorized bidder submits forged credentials. | On-chain Keccak-256 sorted-pair proof verification fails; throws `InvalidMerkleProof`. |
+| **Merkle Whitelist Fraud** | Unauthorized bidder submits forged credentials. | On-chain dual Keccak-256 (OpenZeppelin) & SHA-256 sorted-pair proof verification fails; throws `InvalidMerkleProof`. |
 | **Price Tampering** | Bidder attempts to alter quotation during reveal. | SHA-256 preimage check fails against `fin_commitment_hash`; throws `InvalidRevealHash`. |
 | **Rogue Evaluator Favoritism** | Corrupt evaluator submits 98% grade to artificially inflate friend. | Olympic Trimmed Mean drops max score; automatically flags evaluator (`is_outlier_flagged = true`). |
 | **Commercial Secrecy Breach** | Competitor/operator tries to reveal disqualified bidder's Envelope B. | Smart contract enforces `bid.is_tech_qualified == true`; throws `BidderTechnicallyDisqualified`. |
