@@ -6,7 +6,8 @@
   "scripts": {
     "test": "ts-node tests/test_runner.ts",
     "verify": "ts-node verifier/verify.ts",
-    "demo": "python run_demo.py"
+    "demo": "python run_demo.py",
+    "start": "python server.py"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",

@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://bittrace-production.up.railway.app/api/:path*"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+providers = ["python"]
+
+[phases.setup]
+nixPkgs = ["python310"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "python server.py"
