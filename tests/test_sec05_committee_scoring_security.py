@@ -51,7 +51,7 @@ class TestSEC05CommitteeScoringSecurity(unittest.TestCase):
             authority_pubkey=self.authority["public_key"],
             tender_id=f"TENDER-SEC05-{secrets.token_hex(4)}",
             submission_deadline_slot=1020,
-            admin_review_deadline_slot=1030,
+            admin_review_deadline_slot=1020,
             tech_eval_deadline_slot=1050,
             fin_reveal_deadline_slot=1070
         )

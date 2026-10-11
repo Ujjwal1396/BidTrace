@@ -664,6 +664,43 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "review_administrative_compliance",
+      "discriminator": [
+        147,
+        79,
+        52,
+        130,
+        141,
+        238,
+        179,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "tender",
+          "writable": true
+        },
+        {
+          "name": "bid_commitment",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "passed",
+          "type": "bool"
+        },
+        {
+          "name": "rejection_code",
+          "type": "u16"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1358,6 +1395,11 @@
       "code": 6044,
       "name": "EmptyTrimmedScorePool",
       "msg": "Severe variance dropped all evaluator scores: empty trimmed score pool."
+    },
+    {
+      "code": 6045,
+      "name": "AdminAlreadyReviewed",
+      "msg": "Bidder administrative compliance has already been evaluated."
     }
   ]
 }

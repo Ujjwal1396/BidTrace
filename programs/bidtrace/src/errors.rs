@@ -136,6 +136,10 @@ pub enum BidTraceError {
 
     #[msg("Severe variance dropped all evaluator scores: empty trimmed score pool.")]
     EmptyTrimmedScorePool,
+
+    #[msg("Bidder administrative compliance has already been evaluated.")]
+    AdminAlreadyReviewed,
 }
+
 
 

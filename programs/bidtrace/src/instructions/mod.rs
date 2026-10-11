@@ -9,6 +9,7 @@ pub mod finalize_technical_scores;
 pub mod reveal_financial_envelope;
 pub mod record_award_qcbs;
 pub mod refund_disqualified_bond;
+pub mod review_administrative_compliance;
 
 pub use initialize_tender::*;
 pub use initialize_committee::*;
@@ -21,3 +22,5 @@ pub use finalize_technical_scores::*;
 pub use reveal_financial_envelope::*;
 pub use record_award_qcbs::*;
 pub use refund_disqualified_bond::*;
+pub use review_administrative_compliance::*;
+

@@ -1286,5 +1286,258 @@ describe("BidTrace 3.0: Incorruptible Two-Envelope & Blinded Scoring Protocol", 
     assert.strictEqual(fetchBZero.technicalScoreBps, 0);
     assert.strictEqual(fetchBZero.isTechQualified, false);
   });
+
+  it("Test 8d (SEC-06 Fix): Administrative Due Diligence in Model B & Technical Reveal Gating", async () => {
+    // 1. Prepare keypairs and airdrop SOL before snapshotting slot deadlines
+    const bidderApproved = anchor.web3.Keypair.generate();
+    const bidderRejected = anchor.web3.Keypair.generate();
+    const bidderPending = anchor.web3.Keypair.generate();
+
+    for (const b of [bidderApproved, bidderRejected, bidderPending]) {
+      const airdropSig = await provider.connection.requestAirdrop(b.publicKey, 2 * anchor.web3.LAMPORTS_PER_SOL);
+      await provider.connection.confirmTransaction(airdropSig);
+    }
+
+    const curSlot = await provider.connection.getSlot();
+    const sec06SubSlot = new anchor.BN(curSlot + 8);
+    const sec06AdminSlot = new anchor.BN(curSlot + 16);
+    const sec06TechSlot = new anchor.BN(curSlot + 45);
+    const sec06FinSlot = new anchor.BN(curSlot + 80);
+
+    const sec06TenderId = "TENDER-SEC06-ADMIN-DILIGENCE";
+    const [tenderSec06Pda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("tender"), authority.publicKey.toBuffer(), Buffer.from(sec06TenderId)],
+      program.programId
+    );
+
+    const noticeHash = crypto.createHash("sha256").update(Buffer.from("NOTICE_SEC06")).digest();
+
+    await program.methods
+      .initializeTender(
+        sec06TenderId,
+        Array.from(noticeHash),
+        { postQualifiedOpen: {} }, // Model B: Open Tender
+        { qcbs: {} },
+        sec06SubSlot,
+        sec06AdminSlot,
+        sec06TechSlot,
+        sec06FinSlot,
+        Array.from(Buffer.alloc(32)),
+        7500,
+        7000,
+        3000
+      )
+      .accounts({
+        tender: tenderSec06Pda,
+        authority: authority.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    const [bAppPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderSec06Pda.toBuffer(), bidderApproved.publicKey.toBuffer()],
+      program.programId
+    );
+    const [bRejPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderSec06Pda.toBuffer(), bidderRejected.publicKey.toBuffer()],
+      program.programId
+    );
+    const [bPenPda] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("bid"), tenderSec06Pda.toBuffer(), bidderPending.publicKey.toBuffer()],
+      program.programId
+    );
+
+    const saltAppTech = crypto.randomBytes(32);
+    const propAppHash = crypto.createHash("sha256").update(Buffer.from("PROP_APP")).digest();
+    const commAppTech = crypto.createHash("sha256")
+      .update(Buffer.from("BIDTRACE_TECH_V1"))
+      .update(tenderSec06Pda.toBuffer())
+      .update(bidderApproved.publicKey.toBuffer())
+      .update(saltAppTech)
+      .update(propAppHash)
+      .digest();
+
+    const saltRejTech = crypto.randomBytes(32);
+    const propRejHash = crypto.createHash("sha256").update(Buffer.from("PROP_REJ")).digest();
+    const commRejTech = crypto.createHash("sha256")
+      .update(Buffer.from("BIDTRACE_TECH_V1"))
+      .update(tenderSec06Pda.toBuffer())
+      .update(bidderRejected.publicKey.toBuffer())
+      .update(saltRejTech)
+      .update(propRejHash)
+      .digest();
+
+    const saltPenTech = crypto.randomBytes(32);
+    const propPenHash = crypto.createHash("sha256").update(Buffer.from("PROP_PEN")).digest();
+    const commPenTech = crypto.createHash("sha256")
+      .update(Buffer.from("BIDTRACE_TECH_V1"))
+      .update(tenderSec06Pda.toBuffer())
+      .update(bidderPending.publicKey.toBuffer())
+      .update(saltPenTech)
+      .update(propPenHash)
+      .digest();
+
+    // Commit Bids
+    for (const [bidderKp, bidPda, commTech] of [
+      [bidderApproved, bAppPda, commAppTech],
+      [bidderRejected, bRejPda, commRejTech],
+      [bidderPending, bPenPda, commPenTech],
+    ] as [anchor.web3.Keypair, anchor.web3.PublicKey, Buffer][]) {
+      await program.methods
+        .commitDualBid(
+          Array.from(crypto.randomBytes(32)),
+          Array.from(commTech),
+          Array.from(crypto.randomBytes(32)),
+          { bidSecuringDeclaration: {} },
+          new anchor.BN(0),
+          null
+        )
+        .accounts({
+          tender: tenderSec06Pda,
+          bidCommitment: bidPda,
+          bidder: bidderKp.publicKey,
+          feePayer: bidderKp.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([bidderKp])
+        .rpc();
+    }
+
+    // 3. Verify all 3 bids initialized as AdminStatus::Pending
+    const fetchAppInit = await program.account.dualBidCommitment.fetch(bAppPda);
+    const fetchRejInit = await program.account.dualBidCommitment.fetch(bRejPda);
+    const fetchPenInit = await program.account.dualBidCommitment.fetch(bPenPda);
+    assert.deepStrictEqual(fetchAppInit.adminStatus, { pending: {} });
+    assert.deepStrictEqual(fetchRejInit.adminStatus, { pending: {} });
+    assert.deepStrictEqual(fetchPenInit.adminStatus, { pending: {} });
+
+    // 4. Advance phase past subSlot to AdministrativeReview
+    while ((await provider.connection.getSlot()) <= sec06SubSlot.toNumber()) {
+      await new Promise(r => setTimeout(r, 200));
+    }
+    await program.methods
+      .advanceTenderPhase()
+      .accounts({ tender: tenderSec06Pda, caller: authority.publicKey })
+      .rpc();
+
+    const fetchTenderAdmin = await program.account.tender.fetch(tenderSec06Pda);
+    assert.deepStrictEqual(fetchTenderAdmin.status, { administrativeReview: {} });
+
+    // 5. Conduct Administrative Review
+    // Bidder Approved -> Passed (passed = true, rejection_code = 0)
+    await program.methods
+      .reviewAdministrativeCompliance(true, 0)
+      .accounts({
+        tender: tenderSec06Pda,
+        bidCommitment: bAppPda,
+        authority: authority.publicKey,
+      })
+      .rpc();
+
+    // Bidder Rejected -> Failed (passed = false, rejection_code = 403)
+    await program.methods
+      .reviewAdministrativeCompliance(false, 403)
+      .accounts({
+        tender: tenderSec06Pda,
+        bidCommitment: bRejPda,
+        authority: authority.publicKey,
+      })
+      .rpc();
+
+    // Bidder Pending is left unreviewed!
+
+    const fetchAppReviewed = await program.account.dualBidCommitment.fetch(bAppPda);
+    const fetchRejReviewed = await program.account.dualBidCommitment.fetch(bRejPda);
+    assert.deepStrictEqual(fetchAppReviewed.adminStatus, { passed: {} });
+    assert.strictEqual(fetchAppReviewed.adminRejectionCode, 0);
+    assert.deepStrictEqual(fetchRejReviewed.adminStatus, { failed: {} });
+    assert.strictEqual(fetchRejReviewed.adminRejectionCode, 403);
+
+    const fetchTenderReviewed = await program.account.tender.fetch(tenderSec06Pda);
+    assert.strictEqual(fetchTenderReviewed.totalAdminPassed, 1);
+
+    // 6. Double review attempt on Bidder Approved fails with AdminAlreadyReviewed (6045)
+    try {
+      await program.methods
+        .reviewAdministrativeCompliance(false, 101)
+        .accounts({
+          tender: tenderSec06Pda,
+          bidCommitment: bAppPda,
+          authority: authority.publicKey,
+        })
+        .rpc();
+      assert.fail("Should have failed with AdminAlreadyReviewed");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("AdminAlreadyReviewed") || err.toString().includes("6045"),
+        `Expected AdminAlreadyReviewed, got: ${err}`
+      );
+    }
+
+    // 7. Advance phase past adminSlot to TechnicalEvaluation
+    while ((await provider.connection.getSlot()) <= sec06AdminSlot.toNumber()) {
+      await new Promise(r => setTimeout(r, 200));
+    }
+    await program.methods
+      .advanceTenderPhase()
+      .accounts({ tender: tenderSec06Pda, caller: authority.publicKey })
+      .rpc();
+
+    const fetchTenderTech = await program.account.tender.fetch(tenderSec06Pda);
+    assert.deepStrictEqual(fetchTenderTech.status, { technicalEvaluation: {} });
+
+    // 8. Envelope A Unsealing Security Gating:
+    // Case A: Disqualified Bidder (Failed) -> REJECTED with BidderNotAdminPassed (6019)
+    try {
+      await program.methods
+        .revealTechnicalBid(Array.from(saltRejTech), Array.from(propRejHash))
+        .accounts({
+          tender: tenderSec06Pda,
+          bidCommitment: bRejPda,
+          revealer: bidderRejected.publicKey,
+        })
+        .signers([bidderRejected])
+        .rpc();
+      assert.fail("Disqualified bidder should fail to reveal technical bid");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("BidderNotAdminPassed") || err.toString().includes("6019"),
+        `Expected BidderNotAdminPassed, got: ${err}`
+      );
+    }
+
+    // Case B: Unreviewed Bidder (Pending) -> REJECTED with BidderNotAdminPassed (6019)
+    try {
+      await program.methods
+        .revealTechnicalBid(Array.from(saltPenTech), Array.from(propPenHash))
+        .accounts({
+          tender: tenderSec06Pda,
+          bidCommitment: bPenPda,
+          revealer: bidderPending.publicKey,
+        })
+        .signers([bidderPending])
+        .rpc();
+      assert.fail("Unreviewed bidder should fail to reveal technical bid");
+    } catch (err: any) {
+      assert.ok(
+        err.toString().includes("BidderNotAdminPassed") || err.toString().includes("6019"),
+        `Expected BidderNotAdminPassed, got: ${err}`
+      );
+    }
+
+    // Case C: Qualified Bidder (Passed) -> SUCCEEDS in unsealing Envelope A
+    await program.methods
+      .revealTechnicalBid(Array.from(saltAppTech), Array.from(propAppHash))
+      .accounts({
+        tender: tenderSec06Pda,
+        bidCommitment: bAppPda,
+        revealer: bidderApproved.publicKey,
+      })
+      .signers([bidderApproved])
+      .rpc();
+
+    const fetchAppRevealed = await program.account.dualBidCommitment.fetch(bAppPda);
+    assert.strictEqual(fetchAppRevealed.isTechRevealed, true);
+  });
 });
 

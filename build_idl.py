@@ -216,6 +216,19 @@ def generate_idl():
                     {"name": "caller", "signer": True}
                 ],
                 "args": []
+            },
+            {
+                "name": "review_administrative_compliance",
+                "discriminator": discriminator("global", "review_administrative_compliance"),
+                "accounts": [
+                    {"name": "tender", "writable": True},
+                    {"name": "bid_commitment", "writable": True},
+                    {"name": "authority", "signer": True}
+                ],
+                "args": [
+                    {"name": "passed", "type": "bool"},
+                    {"name": "rejection_code", "type": "u16"}
+                ]
             }
         ],
         "accounts": [
@@ -428,7 +441,8 @@ def generate_idl():
             {"code": 6041, "name": "MissingCompetingBids", "msg": "All competing revealed bids must be provided for award validation."},
             {"code": 6042, "name": "InvalidCompetingBid", "msg": "Invalid competing bid account provided."},
             {"code": 6043, "name": "IncompleteCommitteeGrades", "msg": "Committee roster is incomplete: all accredited evaluator grades must be submitted."},
-            {"code": 6044, "name": "EmptyTrimmedScorePool", "msg": "Severe variance dropped all evaluator scores: empty trimmed score pool."}
+            {"code": 6044, "name": "EmptyTrimmedScorePool", "msg": "Severe variance dropped all evaluator scores: empty trimmed score pool."},
+            {"code": 6045, "name": "AdminAlreadyReviewed", "msg": "Bidder administrative compliance has already been evaluated."}
         ]
     }
 

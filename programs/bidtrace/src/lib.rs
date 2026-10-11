@@ -158,4 +158,18 @@ pub mod bidtrace {
     pub fn refund_disqualified_bond(ctx: Context<RefundDisqualifiedBond>) -> Result<()> {
         instructions::refund_disqualified_bond::handle_refund_disqualified_bond(ctx)
     }
+
+    /// 12. Evaluate administrative compliance for a committed bidder during AdministrativeReview phase
+    pub fn review_administrative_compliance(
+        ctx: Context<ReviewAdministrativeCompliance>,
+        passed: bool,
+        rejection_code: u16,
+    ) -> Result<()> {
+        instructions::review_administrative_compliance::handle_review_administrative_compliance(
+            ctx,
+            passed,
+            rejection_code,
+        )
+    }
 }
+

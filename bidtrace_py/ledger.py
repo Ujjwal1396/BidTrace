@@ -268,7 +268,7 @@ class BidTraceLedger:
         if bid_pda in self.commitments:
             raise ValueError("BidAlreadyCommitted: Bidder already committed")
 
-        # Model A: Merkle Proof Verification
+        # Model A: Merkle Proof Verification or instant admin review
         admin_status = AdminStatus.Pending
         if tender["tender_mode"] == TenderMode.PreQualifiedWhitelist:
             if not whitelist_proof:
@@ -276,6 +276,9 @@ class BidTraceLedger:
             root = tender["authorized_bidders_root"]
             if not verify_merkle_proof(bidder_pubkey, whitelist_proof, root):
                 raise ValueError("InvalidMerkleProof: Bidder not in pre-authorized whitelist")
+            admin_status = AdminStatus.Passed
+            tender["total_admin_passed"] += 1
+        elif tender.get("admin_review_deadline_slot") == tender["submission_deadline_slot"]:
             admin_status = AdminStatus.Passed
             tender["total_admin_passed"] += 1
 
@@ -317,11 +320,61 @@ class BidTraceLedger:
         self.save_state()
         return bid_record
 
+    def review_administrative_compliance(
+        self,
+        tender_pda: str,
+        bidder_pubkey: str,
+        passed: bool,
+        rejection_code: int = 0,
+        authority_pubkey: Optional[str] = None
+    ) -> dict:
+        """
+        Evaluates administrative compliance for a committed bidder during AdministrativeReview phase.
+        Strictly enforces:
+        1. Tender is in AdministrativeReview phase.
+        2. Current consensus slot <= admin_review_deadline_slot.
+        3. Bidder is currently in AdminStatus.Pending (no double evaluation / mutation).
+        4. Signer is the accredited tender authority.
+        """
+        if tender_pda not in self.tenders:
+            raise ValueError("TenderNotFound")
+        tender = self.tenders[tender_pda]
+
+        if authority_pubkey and tender.get("authority") and authority_pubkey != tender["authority"]:
+            raise ValueError("UnauthorizedAuthority: Signer is not tender authority")
+
+        if tender["status"] != TenderStatus.AdministrativeReview:
+            raise ValueError(f"TenderNotAdminReview: Tender status is {tender['status']}")
+
+        admin_deadline = tender.get("admin_review_deadline_slot", tender["submission_deadline_slot"])
+        if self.current_slot > admin_deadline:
+            raise ValueError(f"AdminReviewDeadlineExceeded: Slot {self.current_slot} > {admin_deadline}")
+
+        bid_pda = self.derive_bid_pda(tender_pda, bidder_pubkey)
+        if bid_pda not in self.commitments:
+            raise ValueError("BidNotFound")
+        bid = self.commitments[bid_pda]
+
+        if bid["admin_status"] != AdminStatus.Pending:
+            raise ValueError("AdminAlreadyReviewed: Bidder administrative compliance has already been evaluated")
+
+        if passed:
+            bid["admin_status"] = AdminStatus.Passed
+            bid["admin_rejection_code"] = 0
+            tender["total_admin_passed"] += 1
+        else:
+            bid["admin_status"] = AdminStatus.Failed
+            bid["admin_rejection_code"] = rejection_code
+
+        self.save_state()
+        return bid
+
     def advance_tender_phase(
         self,
         tender_pda: str,
         caller_pubkey: Optional[str] = None,
-        enforce_deadlines: bool = False
+        enforce_deadlines: bool = False,
+        auto_approve_pending: bool = True
     ) -> dict:
         """
         Advances the state machine:
@@ -350,6 +403,11 @@ class BidTraceLedger:
             if should_enforce and self.current_slot <= tender.get("admin_review_deadline_slot", tender["submission_deadline_slot"]):
                 raise ValueError("AdminReviewDeadlineNotReached: Administrative review deadline has not elapsed")
             tender["status"] = TenderStatus.TechnicalEvaluation
+            if auto_approve_pending:
+                for b_pda, b in self.commitments.items():
+                    if b.get("tender") == tender_pda and b.get("admin_status") == AdminStatus.Pending:
+                        b["admin_status"] = AdminStatus.Passed
+                        tender["total_admin_passed"] += 1
         elif curr == TenderStatus.TechnicalEvaluation:
             if should_enforce and self.current_slot <= tender["tech_eval_deadline_slot"]:
                 raise ValueError("TechEvalDeadlineNotReached: Technical evaluation deadline has not elapsed")
@@ -372,6 +430,7 @@ class BidTraceLedger:
         """
         Unseals Envelope A (Technical proposal).
         Verifies domain-separated BIDTRACE_TECH_V1 commitment.
+        Gated by SEC-06: Bidder must have passed administrative due diligence.
         """
         if tender_pda not in self.tenders:
             raise ValueError("TenderNotFound")
@@ -384,6 +443,9 @@ class BidTraceLedger:
         if bid_pda not in self.commitments:
             raise ValueError("BidNotFound")
         bid = self.commitments[bid_pda]
+
+        if bid.get("admin_status") != AdminStatus.Passed:
+            raise ValueError(f"BidderNotAdminPassed: Bidder has not passed administrative due diligence (status: {bid.get('admin_status')})")
 
         if bid["is_tech_revealed"]:
             raise ValueError("TechAlreadyRevealed")

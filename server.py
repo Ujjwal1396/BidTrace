@@ -128,6 +128,7 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
                     bids_summary.append({
                         "bidder": b.get("bidder"),
                         "admin_status": b.get("admin_status"),
+                        "admin_rejection_code": b.get("admin_rejection_code", 0),
                         "is_tech_revealed": b.get("is_tech_revealed"),
                         "technical_score_bps": b.get("technical_score_bps"),
                         "is_tech_qualified": b.get("is_tech_qualified"),
@@ -530,13 +531,43 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
                 tender = state.ledger.advance_tender_phase(
                     state.tender_pda,
                     caller_pubkey=caller,
-                    enforce_deadlines=True
+                    enforce_deadlines=True,
+                    auto_approve_pending=data.get("auto_approve_pending", True)
                 )
                 self.send_json({
                     "status": "ok",
                     "current_slot": state.ledger.current_slot,
                     "tender_status": tender["status"],
                     "total_committed": tender["total_committed"]
+                })
+            except Exception as e:
+                self.send_json({"status": "error", "message": str(e)}, 400)
+            return
+
+        # 3b. Administrative Compliance Review (Model B)
+        if parsed_path in ["/api/bid/admin_review", "/api/tender/admin_review"]:
+            if not state.tender_pda:
+                self.send_json({"status": "error", "message": "No active tender."}, 400)
+                return
+            t_pda = data.get("tender_pda", state.tender_pda)
+            bidder = data.get("bidder_pubkey")
+            passed = data.get("passed", True)
+            rejection_code = data.get("rejection_code", 0)
+            authority = data.get("authority_pubkey", state.authority["public_key"])
+            try:
+                bid = state.ledger.review_administrative_compliance(
+                    tender_pda=t_pda,
+                    bidder_pubkey=bidder,
+                    passed=passed,
+                    rejection_code=rejection_code,
+                    authority_pubkey=authority
+                )
+                self.send_json({
+                    "status": "ok",
+                    "bid": bid,
+                    "admin_status": bid["admin_status"],
+                    "admin_rejection_code": bid["admin_rejection_code"],
+                    "total_admin_passed": state.ledger.tenders[t_pda]["total_admin_passed"]
                 })
             except Exception as e:
                 self.send_json({"status": "error", "message": str(e)}, 400)

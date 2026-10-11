@@ -364,3 +364,28 @@ class BidTraceRelayerGateway:
             "fee_payer": self.fee_payer_wallet
         }
 
+    def review_administrative_compliance(
+        self,
+        tender_pda: str,
+        bidder_pubkey: str,
+        passed: bool,
+        rejection_code: int = 0,
+        authority_pubkey: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Sponsors transaction for authority to record administrative compliance evaluation.
+        """
+        bid = self.ledger.review_administrative_compliance(
+            tender_pda=tender_pda,
+            bidder_pubkey=bidder_pubkey,
+            passed=passed,
+            rejection_code=rejection_code,
+            authority_pubkey=authority_pubkey
+        )
+        return {
+            "bid": bid,
+            "tx_signature": f"tx_admin_review_{secrets.token_hex(16)}",
+            "fee_payer": self.fee_payer_wallet
+        }
+
+

@@ -83,6 +83,9 @@ pub fn handle_commit_dual_bid(
 
         admin_status = AdminStatus::Passed;
         tender.total_admin_passed += 1;
+    } else if tender.admin_review_deadline_slot == tender.submission_deadline_slot {
+        admin_status = AdminStatus::Passed;
+        tender.total_admin_passed += 1;
     }
 
     // 3. Solana Escrow Bond Handling (if applicable)

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use sha2::{Digest, Sha256};
 use crate::errors::BidTraceError;
-use crate::state::{DualBidCommitment, Tender, TenderStatus};
+use crate::state::{AdminStatus, DualBidCommitment, Tender, TenderStatus};
 
 #[derive(Accounts)]
 pub struct RevealTechnicalBid<'info> {
@@ -16,6 +16,7 @@ pub struct RevealTechnicalBid<'info> {
         seeds = [b"bid", tender.key().as_ref(), bid_commitment.bidder.as_ref()],
         bump = bid_commitment.bump,
         constraint = !bid_commitment.is_tech_revealed @ BidTraceError::TechAlreadyRevealed,
+        constraint = bid_commitment.admin_status == AdminStatus::Passed @ BidTraceError::BidderNotAdminPassed,
     )]
     pub bid_commitment: Account<'info, DualBidCommitment>,
 
