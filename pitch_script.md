@@ -1,55 +1,95 @@
-# BidTrace: 3-Minute Hackathon Video Pitch Script
+# BidTrace: 2-Minute Executive Pitch Script (Pitchdeck 101 Aligned)
 
-**Duration:** Exactly 3 Minutes  
-**Visuals:** Start on Pitch Slide $\rightarrow$ Transition to Live Interactive Dashboard (`public/index.html`) $\rightarrow$ Terminal / Explorer $\rightarrow$ Conclusion Slide.
-
----
-
-### 0:00 – 0:45 | The Hook & The Critical Procurement Attack
-* **Visual:** Slide showing government tender headline: *"After bids close, can anyone prove the winning bid wasn't inserted late?"*
-* **Speaker:**
-  > "Every year, trillions of dollars are spent on public and enterprise procurement. But there is a fatal blind spot in modern e-procurement platforms: **the window between the submission deadline and bid opening.**
-  >
-  > A corrupt administrator or database operator with root access can inspect competing bids after the 12:00 deadline, secretly insert a 4th favored bid, or tamper with an existing price before bids are opened. When honest bidders lose, the operator simply claims: *'That's what was in the database.'*
-  >
-  > We built **BidTrace**: an incorruptible cryptographic deadline-lock protocol for competitive procurement on Solana."
+**Target Event:** Colosseum Crypto World's Fair 2026  
+**Total Target Duration:** Exactly 120 Seconds (2:00 Flat)  
+**Format:** 7 Minimalist High-Impact Slides (<40 words per slide, zero fluff, no roadmap)  
+**Live Rehearsal Dashboard:** `http://localhost:8000/pitch-deck.html` (or `bidtrace.net/pitch-deck.html`)
 
 ---
 
-### 0:45 – 1:30 | How It Works (Direct PDAs & Consensus Clock)
-* **Visual:** Switch screen to the **BidTrace Web Dashboard** (`public/index.html`). Show Tender `TENDER-2026-HIGHWAY-402` and the 3 bidder cards.
-* **Speaker:**
-  > "BidTrace does not put confidential bids on-chain or try to replace the entire legal system. Instead, it proves one mathematically irrefutable claim: **bid-set completeness at the deadline.**
+### Slide 1: Cover Slide (0:00 – 0:15)
+* **Headline on Slide:** *Tamper-Proof Sealed Bidding for Public Contracts on Solana*
+* **Metrics Shown:** `$13.0 Trillion` Annual Spend | `400ms Clock` Proof of History | `Zero Crypto Gas` Relayer
+* **Speaker Script (15s):**
+  > "Judges, every year $13 trillion is spent on public infrastructure, yet the entire industry runs on centralized database trust.
   >
-  > Here is Tender 402 closing at Slot 1050. Bidders encrypt their proposals locally using AES-256-GCM and write a 32-byte domain-separated cryptographic commitment **directly to a non-custodial Solana PDA**.
-  >
-  > Because bidders commit directly to the chain, the operator cannot selectively censor or exclude any bidder. And because Solana's consensus clock enforces `slot <= deadline_slot`, the submission window is permanently sealed the moment slot 1050 passes."
+  > BidTrace brings tamper-proof sealed bidding to public contracts on Solana, turning administrative trust into mathematical certainty."
+* **Pitch Defense Checkpoint:** Instantly frames the massive institutional TAM without buzzword soup, anchoring Solana's Proof of History clock as the core mechanism in the first 10 seconds.
 
 ---
 
-### 1:30 – 2:20 | The Live Attacks & Defenses (The "Climax")
-* **Visual:** Click **"Advance Slot to 1060 & Lock Tender"**. Watch the status turn to **Locked**.
-* **Speaker:**
-  > "Now, let's watch what happens when a corrupt operator attacks the system."
-* **Visual:** Click **"Attack 1: Inject Late Bidder D"**. Show red error alert in console: `BidTraceError::DeadlineExceeded`.
-* **Speaker:**
-  > "Attack 1: The operator receives a bribe and tries to insert Bidder D five minutes after the deadline. Solana Anchor rejects the transaction on-chain: `DeadlineExceeded`. The consensus slot has passed; no admin key can rewrite history."
-* **Visual:** Click **"Attack 2: Tamper ACME Price"**. Show red error alert: `BidTraceError::InvalidRevealHash`.
-* **Speaker:**
-  > "Attack 2: The operator tries to alter ACME's price from \$4.2M to \$3.7M in the database. When reveal occurs, Anchor recomputes the preimage hash, detects the tamper, and halts: `InvalidRevealHash`."
-
----
-
-### 2:20 – 2:50 | Legitimate Opening & Air-Gapped Verification
-* **Visual:** Click **"Reveal Legitimate Bids"** $\rightarrow$ Click **"Record Award (BuildCo)"** $\rightarrow$ Click **"Run Air-Gapped Audit Check"**. Green badge appears.
-* **Speaker:**
-  > "Legitimate bids reveal cleanly. And unlike naive root schemes that break if one bidder defaults, BidTrace evaluates each leaf independently so honest bidders are never deadlocked.
+### Slide 2: The Problem (0:15 – 0:35)
+* **Headline on Slide:** *The Post-Deadline Insider Tampering Window*
+* **Metrics Shown:** `$13 Trillion / Year (15% of GDP)` | `Zero Math Proof`
+* **Speaker Script (20s):**
+  > "The fatal flaw in procurement isn't bad people—it's a window of time. Between the submission deadline and bid opening, database admins have unmonitored root access to peek at competitor pricing, alter scores, and backdate bids in MySQL.
   >
-  > Finally, what if the ministry shuts down its website? An auditor or losing contractor can take their standalone `proof_bundle.json` and run our zero-dependency verifier offline. It queries public Solana state directly and proves within milliseconds that the bid was committed before slot 1050 and is 100% tamper-free."
+  > Traditional audits fail because centralized databases produce zero mathematical proof."
+* **Pitch Defense Checkpoint:** Directly confronts the *human angle* of database administrators holding MySQL root keys, showing why traditional IT audit trails are powerless against insider alteration.
 
 ---
 
-### 2:50 – 3:00 | Conclusion & Impact
-* **Visual:** Final slide showing GitHub repo, Solana Devnet Program ID, and team contact.
-* **Speaker:**
-  > "BidTrace turns procurement corruption from *'your word against the database administrator'* into mathematical certainty. Built with Anchor on Solana. Thank you."
+### Slide 3: The Solution (0:35 – 0:55)
+* **Headline on Slide:** *“Chainlink + Sealed Envelopes for Sovereign Capital”*
+* **Mechanisms Shown:** Dual-Envelope Sealing (OCDS 1.1) | Proof of History Clock | Blinded Outlier Pruning (Olympic Trimmed Mean)
+* **Speaker Script (20s):**
+  > "BidTrace is Chainlink meets sealed envelopes for sovereign infrastructure. We don't just store hashes; Solana's 400-millisecond Proof of History turns time into an unalterable physical law: if a slot expires, code rejects entry forever.
+  >
+  > Dual envelopes guarantee commercial secrecy, while our on-chain trimmed mean prunes collusive scores."
+* **Pitch Defense Checkpoint (Answering "Why Solana?"):** Disarms the judge objection *"Why not an AWS database or RFC 3161 timestamp?"* by proving that Solana acts as an immutable physical consensus cutoff that no server operator can bribe or rewind.
+
+---
+
+### Slide 4: Market Opportunity (0:55 – 1:15)
+* **Headline on Slide:** *From Administrative Paper to Incorruptible Rails*
+* **Metrics Shown:** `$500 Billion SAM` (Development Bank Tenders) | `$13.0 Trillion TAM`
+* **Speaker Script (20s):**
+  > "The macro tailwind is massive: the World Bank and UN now mandate OCDS 1.1 open data standards to stop systemic fraud.
+  >
+  > Our bottoms-up beachhead is the $500 billion in development bank tenders. The dream state is clear: incorruptible sovereign capital where kickbacks are cryptographically eliminated."
+* **Pitch Defense Checkpoint:** Teaches judges a niche macro shift (multilateral donor anti-corruption mandates) rather than quoting generic billions without an institutional wedge.
+
+---
+
+### Slide 5: Hero Metrics — "This Is Already Working!" (1:15 – 1:35)
+* **Headline on Slide:** *“This Is Already Working Live on Solana”*
+* **Proof Shown:** `10` Anchor Instructions Deployed | `78 / 78` Passing Unit Tests | `1-Click` Attack Simulator | `0 Deadlock` Leaf Architecture
+* **Speaker Script (20s):**
+  > "This is already working live today. We have 10 Anchor Rust instructions deployed on Solana Devnet and 78 passing unit tests.
+  >
+  > Crucially, unlike naive auction schemes where one rogue bidder can freeze opening, our independent leaf architecture and on-chain bond slashing ensure compliant contractors unseal cleanly with zero deadlock."
+* **Pitch Defense Checkpoint (Answering the Rogue Bidder Dilemma):** Resolves the classic commit-reveal deadlock flaw exposed in past hackathons: rogue bidders who refuse to reveal or submit garbage are penalized through bond forfeiture without halting compliant bids.
+
+---
+
+### Slide 6: Business Model & Network Effects (1:35 – 1:50)
+* **Headline on Slide:** *“Why This Keeps Growing: The Relayer Moat”*
+* **Model Shown:** `0.05% Protocol Take-Rate` ($250M ARR at 1% TAM) | Surety API Fees | Enterprise Sponsored Relayer (Zero Crypto Gas) | Municipal Lock-In Flywheel
+* **Speaker Script (15s):**
+  > "Why will this keep working? We monetize through a 0.05% take-rate on awarded contracts plus surety underwriting fees.
+  >
+  > Our moat is distribution: contractors pay zero crypto gas, and each onboarded government locks hundreds of contractors into our verification rail, creating an irreversible compliance standard."
+* **Pitch Defense Checkpoint (Answering the B2G Delusion):** Clarifies that contractors and municipal treasuries never touch volatile crypto or purchase SOL; the enterprise relayer sponsors all transactions, allowing standard ERP adoption.
+
+---
+
+### Slide 7: Team (Founder-Market Fit) (1:50 – 2:00)
+* **Headline on Slide:** *Built for Sovereign Cryptographic Settlement*
+* **Credentials Shown:** Solana Anchor Runtime Engineering | OCDS 1.1 Specification (World Bank) | B2G & TradFi Relayer Architecture
+* **Speaker Script (10s):**
+  > "We are uniquely built for this problem—combining deep expertise in Solana Anchor engineering, World Bank OCDS standards, and institutional compliance.
+  >
+  > We give contractors independent cryptographic receipts that hold up in legal tribunals. We built BidTrace to make public infrastructure incorruptible. Thank you."
+* **Pitch Defense Checkpoint (The Receipt Shield):** Reminds judges that bidders hold offline-verifiable receipts (`bidder_receipt_...json`) giving them independent legal standing at administrative tribunals, defeating corrupt operator censorship.
+
+---
+
+### Quick Reference: The 5 Past Traps vs. BidTrace Inoculations
+
+| Past Hackathon Pitfall | What Judges Scrutinized | How Your Updated Script Defeats It |
+| :--- | :--- | :--- |
+| **"Why Blockchain?"** | "Postgres with digital signatures can hash files." | Proof of History is an **unalterable physical consensus clock** (`slot > deadline = REJECTED`). |
+| **Rogue Bidder Griefing** | "If one bidder refuses to reveal, the tender deadlocks." | **Independent leaf state machines + hybrid surety bond slashing** ensure compliant bids open cleanly. |
+| **Blanket Anonymity** | "World Bank & public law prohibit total secrecy." | **Dual envelopes:** pre-deadline secrecy, blinded scoring, and transparent unsealing of winning BOQs. |
+| **B2G Crypto Gas Friction** | "Governments & builders won't buy crypto to pay gas." | **Zero-gas sponsored relayer:** enterprise bidders pay 0 gas; integrates directly into SAP/Oracle via OCDS 1.1 JSON. |
+| **Corrupt Operator Censorship** | "Corrupt city mayors can drop bids before hashing." | **Bidder-Held Cryptographic Receipts:** direct PDA intake gives contractors independent legal standing at tribunals. |

@@ -11,7 +11,7 @@ def create_deck():
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    # Pitchdeck 101 Visual Theme Colors (Dark Slate / Cyber Midnight)
+    # Theme Colors (Dark Slate / Cyber Midnight)
     C_BG = RGBColor(10, 15, 29)          # Deep Midnight (#0a0f1d)
     C_CARD = RGBColor(18, 25, 45)        # Card Background (#12192d)
     C_CARD_BORDER = RGBColor(30, 41, 70) # Subtle Border (#1e2946)
@@ -46,7 +46,6 @@ def create_deck():
     s1 = prs.slides.add_slide(blank_layout)
     apply_bg(s1)
 
-    # Logo
     if os.path.exists(logo_path):
         s1.shapes.add_picture(logo_path, Inches(1.2), Inches(1.5), width=Inches(1.8))
 
@@ -103,9 +102,9 @@ def create_deck():
     s1.notes_slide.notes_text_frame.text = (
         "[SLIDE 1 | 0:00 - 0:15 | 28 Words on Slide]\n"
         "\"Judges, every year $13 trillion is spent on public infrastructure, "
-        "yet the entire process runs on centralized database trust. "
+        "yet the entire industry runs on centralized database trust. "
         "BidTrace brings tamper-proof sealed bidding to public contracts on Solana, "
-        "making insider tampering mathematically impossible.\""
+        "turning administrative trust into mathematical certainty.\""
     )
 
     # =========================================================================
@@ -142,7 +141,7 @@ def create_deck():
     pl2.font.bold = True
     pl2.font.color.rgb = C_WHITE
     pl3 = tfl.add_paragraph()
-    pl3.text = "\n• Database admins hold MySQL root keys.\n• Late bids quietly backdated before opening.\n• Price peeking leaks competitor bids."
+    pl3.text = "\n• Database admins hold MySQL root keys.\n• Late bids quietly backdated before opening.\n• Unencrypted prices leaked to favored bidders."
     pl3.font.size = Pt(14)
     pl3.font.color.rgb = C_TEXT_MUTED
 
@@ -151,26 +150,26 @@ def create_deck():
     tfr = s2.shapes.add_textbox(Inches(7.1), Inches(2.2), Inches(4.9), Inches(4.2)).text_frame
     tfr.word_wrap = True
     pr1 = tfr.paragraphs[0]
-    pr1.text = "Zero Mathematical Proof"
+    pr1.text = "Zero Math Proof"
     pr1.font.size = Pt(36)
     pr1.font.bold = True
     pr1.font.color.rgb = C_CYAN
     pr2 = tfr.add_paragraph()
-    pr2.text = "Centralized Custody Relies on Blind Human Trust"
+    pr2.text = "Centralized Trust Fails Daily in E-Procurement"
     pr2.font.size = Pt(16)
     pr2.font.bold = True
     pr2.font.color.rgb = C_WHITE
     pr3 = tfr.add_paragraph()
-    pr3.text = "\n• Server timestamps can be rewritten in seconds.\n• Evaluation scores manipulated behind closed doors.\n• No cryptographic audit trail for the public."
+    pr3.text = "\n• Server timestamps rewritten in seconds.\n• Rogue evaluator scores inflated behind closed doors.\n• Admins claim: 'That is what our database recorded.'"
     pr3.font.size = Pt(14)
     pr3.font.color.rgb = C_TEXT_MUTED
 
     s2.notes_slide.notes_text_frame.text = (
-        "[SLIDE 2 | 0:15 - 0:35 | 35 Words on Slide]\n"
+        "[SLIDE 2 | 0:15 - 0:35 | 38 Words on Slide]\n"
         "\"The fatal flaw in procurement isn't bad people—it's a window of time. "
-        "Between submission deadlines and public opening, database admins have unmonitored root access "
-        "to peek at competitor prices and backdate bids in MySQL. "
-        "Centralized trust fails silently every single day.\""
+        "Between the submission deadline and bid opening, database admins have unmonitored root access "
+        "to peek at competitor pricing, alter scores, and backdate bids in MySQL. "
+        "Traditional audits fail because centralized databases produce zero mathematical proof.\""
     )
 
     # =========================================================================
@@ -192,11 +191,10 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # 3 Solution Pillars
     sol_cards = [
-        ("Dual-Envelope Sealing", "OCDS 1.1 Cryptographic Hash", "Technical & financial hashes locked via RFC 8785 canonical standard. Zero leakage.", C_CYAN),
-        ("Proof of History Clock", "Consensus Phase Locks", "Solana 400ms clock makes post-deadline tampering physically impossible.", C_PURPLE),
-        ("Blinded Outlier Pruning", "Olympic Trimmed Mean", "On-chain algorithm automatically prunes collusive scores before price unsealing.", C_EMERALD)
+        ("Dual-Envelope Sealing", "OCDS 1.1 Cryptographic Hash", "Blinded technical & financial commitments via RFC 8785 standard. Zero pre-deadline leakage.", C_CYAN),
+        ("Proof of History Clock", "Physical Consensus Boundary", "Solana 400ms clock makes post-deadline tampering physically impossible. Expired slots rejected.", C_PURPLE),
+        ("Blinded Outlier Pruning", "Olympic Trimmed Mean", "On-chain algorithm auto-prunes collusive evaluator scores before financial unsealing.", C_EMERALD)
     ]
     for i, (title, sub, body, accent) in enumerate(sol_cards):
         cx = Inches(1.0 + i * 3.85)
@@ -220,11 +218,11 @@ def create_deck():
         p3.font.color.rgb = C_WHITE
 
     s3.notes_slide.notes_text_frame.text = (
-        "[SLIDE 3 | 0:35 - 0:55 | 34 Words on Slide]\n"
+        "[SLIDE 3 | 0:35 - 0:55 | 37 Words on Slide]\n"
         "\"BidTrace is Chainlink meets sealed envelopes for sovereign infrastructure. "
-        "Our unique insight: Solana's 400ms Proof of History turns time into an unalterable physical law. "
-        "Contractors seal dual envelopes, expired slots are rejected by validators, "
-        "and evaluator collusion is pruned on-chain.\""
+        "We don't just store hashes; Solana's 400-millisecond Proof of History turns time into an unalterable physical law: "
+        "if a slot expires, code rejects entry forever. "
+        "Dual envelopes guarantee commercial secrecy, while our on-chain trimmed mean prunes collusive scores.\""
     )
 
     # =========================================================================
@@ -236,7 +234,7 @@ def create_deck():
     th4 = s4.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf4 = th4.text_frame
     p = tf4.paragraphs[0]
-    p.text = "MACRO SHIFT & BOTTOMS-UP OPPORTUNITY"
+    p.text = "MACRO SHIFT & BOTTOMS-UP BEACHHEAD"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = C_PURPLE
@@ -246,21 +244,19 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # Left: Macro Trends & Dream State
     add_card(s4, Inches(1.0), Inches(1.9), Inches(5.6), Inches(4.8))
     tf_m = s4.shapes.add_textbox(Inches(1.3), Inches(2.2), Inches(5.0), Inches(4.2)).text_frame
     tf_m.word_wrap = True
     pm1 = tf_m.paragraphs[0]
-    pm1.text = "Macro Trends & The Dream State"
+    pm1.text = "Macro Tailwinds & Dream State"
     pm1.font.size = Pt(18)
     pm1.font.bold = True
     pm1.font.color.rgb = C_CYAN
     pm2 = tf_m.add_paragraph()
-    pm2.text = "\n• World Bank Mandate: Enforces OCDS 1.1 anti-corruption standard across all projects.\n• TradFi On-Chain Shift: Multilateral development bank tenders migrating to Web3 verification.\n• Dream State: Zero kickback windows, instant cryptographic audit proofs, and automated surety release."
+    pm2.text = "\n• World Bank Mandate: Enforces OCDS 1.1 anti-corruption standard across all projects.\n• TradFi Shift: $500B in multilateral tenders migrating on-chain.\n• Dream State: Incorruptible sovereign infrastructure with zero kickback windows."
     pm2.font.size = Pt(14)
     pm2.font.color.rgb = C_WHITE
 
-    # Right: Bottoms-Up TAM / SAM Cards
     add_card(s4, Inches(7.0), Inches(1.9), Inches(5.3), Inches(2.25), bg_color=RGBColor(12, 28, 48), border_color=C_CYAN)
     tft1 = s4.shapes.add_textbox(Inches(7.3), Inches(2.1), Inches(4.7), Inches(1.9)).text_frame
     tft1.word_wrap = True
@@ -289,8 +285,8 @@ def create_deck():
 
     s4.notes_slide.notes_text_frame.text = (
         "[SLIDE 4 | 0:55 - 1:15 | 36 Words on Slide]\n"
-        "\"The macro tailwind is massive: the World Bank and UN now mandate OCDS 1.1 data standards "
-        "to combat systemic fraud. Our bottoms-up beachhead is the $500 billion in development bank tenders. "
+        "\"The macro tailwind is massive: the World Bank and UN now mandate OCDS 1.1 open data standards "
+        "to stop systemic fraud. Our bottoms-up beachhead is the $500 billion in development bank tenders. "
         "The dream state is clear: incorruptible sovereign capital where kickbacks are cryptographically eliminated.\""
     )
 
@@ -313,12 +309,11 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # 4 Hero Metric Tiles
     metrics = [
         ("10", "Anchor Instructions", "Deployed on Solana Devnet (x3iSm5BC...ESjZ)", C_CYAN),
         ("78 / 78", "Passing Unit Tests", "100% Cross-Language RFC 8785 Parity", C_EMERALD),
         ("1-Click", "Attack Simulator", "Live On-Chain Exploits Blocked in Real-Time", C_ROSE),
-        ("0 Gas", "Relayer Protocol", "Live at bidtrace.net with Zero Crypto Friction", C_PURPLE)
+        ("0 Deadlock", "Leaf State Machine", "Rogue bidder default cannot freeze compliant tenders.", C_PURPLE)
     ]
     for i, (num, title, sub, col) in enumerate(metrics):
         mx = Inches(1.0 + i * 2.88)
@@ -342,11 +337,10 @@ def create_deck():
         p3.font.color.rgb = C_TEXT_MUTED
 
     s5.notes_slide.notes_text_frame.text = (
-        "[SLIDE 5 | 1:15 - 1:35 | 36 Words on Slide]\n"
-        "\"This is not a slide concept—BidTrace is already working. "
-        "We have 10 Anchor Rust instructions deployed on Solana Devnet, "
-        "78 passing unit tests with 100% hash parity, and an adversarial attack simulator live right now "
-        "at bidtrace.net where you can watch live exploits fail on-chain.\""
+        "[SLIDE 5 | 1:15 - 1:35 | 38 Words on Slide]\n"
+        "\"This is already working live today. We have 10 Anchor Rust instructions deployed on Solana Devnet "
+        "and 78 passing unit tests. Crucially, unlike naive auction schemes where one rogue bidder can freeze opening, "
+        "our independent leaf architecture and on-chain bond slashing ensure compliant contractors unseal cleanly with zero deadlock.\""
     )
 
     # =========================================================================
@@ -368,7 +362,6 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # Left: Revenue Mechanics
     add_card(s6, Inches(1.0), Inches(1.9), Inches(5.4), Inches(4.8), bg_color=C_CARD, border_color=C_CYAN)
     tf_b1 = s6.shapes.add_textbox(Inches(1.3), Inches(2.2), Inches(4.8), Inches(4.2)).text_frame
     tf_b1.word_wrap = True
@@ -378,11 +371,10 @@ def create_deck():
     pb1.font.bold = True
     pb1.font.color.rgb = C_CYAN
     pb2 = tf_b1.add_paragraph()
-    pb2.text = "\n• 0.05% Protocol Fee: Settled contract volume ($250M ARR at 1% market penetration).\n• Surety Underwriting API: Verification fees paid by commercial surety bond providers.\n• Zero Crypto Gas: Relayer eliminates balance friction for enterprise bidders."
+    pb2.text = "\n• 0.05% Protocol Take-Rate: Settled contract volume ($250M ARR at 1% market penetration).\n• Surety Underwriting API: Verification fees paid by commercial surety bond providers.\n• Zero Crypto Gas: Relayer eliminates balance friction for enterprise bidders."
     pb2.font.size = Pt(14)
     pb2.font.color.rgb = C_WHITE
 
-    # Right: Flywheel & Network Effects
     add_card(s6, Inches(6.8), Inches(1.9), Inches(5.5), Inches(4.8), bg_color=RGBColor(12, 28, 48), border_color=C_PURPLE)
     tf_b2 = s6.shapes.add_textbox(Inches(7.1), Inches(2.2), Inches(4.9), Inches(4.2)).text_frame
     tf_b2.word_wrap = True
@@ -392,16 +384,15 @@ def create_deck():
     pb3.font.bold = True
     pb3.font.color.rgb = C_PURPLE
     pb4 = tf_b2.add_paragraph()
-    pb4.text = "\n• Municipal Onboarding Flywheel: Each city onboarded locks regional contractors into the BidTrace relayer.\n• Relayer Sticky Moat: Enterprise API contracts ensure sustainable long-term cash flow.\n• Standards Lock-In: Becomes the mandatory OCDS 1.1 compliance layer."
+    pb4.text = "\n• Municipal Flywheel: Each city onboarded locks regional contractors into the BidTrace relayer.\n• Relayer Sticky Moat: Enterprise API contracts ensure sustainable long-term cash flow.\n• Standards Lock-In: Becomes the mandatory OCDS 1.1 compliance referee."
     pb4.font.size = Pt(14)
     pb4.font.color.rgb = C_WHITE
 
     s6.notes_slide.notes_text_frame.text = (
         "[SLIDE 6 | 1:35 - 1:50 | 39 Words on Slide]\n"
-        "\"Why does this keep working? Our business model scales with volume: "
-        "a 0.05% protocol take-rate on awarded contracts plus TradFi surety underwriting fees. "
-        "Our network effect is the zero-gas relayer: contractors pay no crypto gas, "
-        "and each onboarded government locks hundreds of contractors into our verification rail.\""
+        "\"Why will this keep working? We monetize through a 0.05% take-rate on awarded contracts plus surety underwriting fees. "
+        "Our moat is distribution: contractors pay zero crypto gas, and each onboarded government locks hundreds of contractors "
+        "into our verification rail, creating an irreversible compliance standard.\""
     )
 
     # =========================================================================
@@ -423,11 +414,10 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # 3 Competency Pillars
     team_cards = [
-        ("Solana Anchor Engineering", "High-Throughput State Machines", "Specialized in temporal phase locks, blinded commitments, and on-chain Olympic scoring algorithms.", C_CYAN),
-        ("OCDS 1.1 Cryptography", "World Bank Standards", "Expertise in RFC 8785 canonical hashing and institutional open-contracting data models.", C_PURPLE),
-        ("TradFi & B2G Protocols", "Zero-Friction Enterprise", "Architected zero-gas relayers and hybrid surety bond registries compliant with sovereign finance laws.", C_EMERALD)
+        ("Solana Anchor Systems", "High-Throughput State Machines", "Temporal slot phase locks, blinded commitments, and on-chain Olympic scoring algorithms.", C_CYAN),
+        ("OCDS 1.1 Cryptography", "World Bank Data Standard", "Deterministic RFC 8785 canonical hashing and open-contracting data schemas.", C_PURPLE),
+        ("B2G & TradFi Relayers", "Zero-Friction Enterprise", "Zero-gas relayer and air-gapped cryptographic bidder receipts giving contractors legal standing.", C_EMERALD)
     ]
     for i, (title, sub, body, accent) in enumerate(team_cards):
         cx = Inches(1.0 + i * 3.85)
@@ -466,16 +456,16 @@ def create_deck():
 
     s7.notes_slide.notes_text_frame.text = (
         "[SLIDE 7 | 1:50 - 2:00 | 39 Words on Slide]\n"
-        "\"We are uniquely equipped for this problem—combining deep expertise in Solana Anchor engineering, "
+        "\"We are uniquely built for this problem—combining deep expertise in Solana Anchor engineering, "
         "World Bank OCDS standards, and institutional compliance. "
-        "We built BidTrace to give the world incorruptible public infrastructure. "
-        "Thank you.\""
+        "We give contractors independent cryptographic receipts that hold up in legal tribunals. "
+        "We built BidTrace to make public infrastructure incorruptible. Thank you.\""
     )
 
     out_file = "BidTrace_Pitch_Deck_2Min.pptx"
     prs.save(out_file)
     prs.save("public/" + out_file)
-    print(f"Pitchdeck 101 aligned deck with 7 slides saved to {out_file} and public/{out_file}!")
+    print(f"Updated deck saved to {out_file} and public/{out_file}!")
 
 if __name__ == "__main__":
     create_deck()
