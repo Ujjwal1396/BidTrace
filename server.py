@@ -1,6 +1,6 @@
 """
-BidTrace 3.0: Multi-Jurisdiction Bond & Relayer Gateway Server
-=============================================================
+BidTrace: Multi-Jurisdiction Bond & Relayer Gateway Server
+=========================================================
 Universal B2B/B2G Procurement Gateway supporting:
 1. Two-Envelope State Machine (Technical + Financial Isolation)
 2. Open Contracting Data Standard (OCDS 1.1) with RFC 8785 (JCS) Hashing
@@ -1127,7 +1127,7 @@ def run():
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), BidTraceHandler) as httpd:
         print("=" * 70)
-        print(f" >>> BIDTRACE 3.0 MULTI-JURISDICTION RELAYER GATEWAY")
+        print(f" >>> BIDTRACE MULTI-JURISDICTION RELAYER GATEWAY")
         print(f" >>> Listening on: http://localhost:{PORT}")
         print("=" * 70)
         print("Gas-sponsored relayer ready for browser portals & API calls...")

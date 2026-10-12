@@ -1,4 +1,4 @@
-# BidTrace 3.0: The Incorruptible Cryptographic Global Standard for Public & Enterprise Procurement
+# BidTrace: The Incorruptible Cryptographic Global Standard for Public & Enterprise Procurement
 
 [![Tests](https://img.shields.io/badge/python--tests-32%20passed-brightgreen.svg)]()
 [![Solana Integration](https://img.shields.io/badge/anchor--tests-8%20passed-brightgreen.svg)]()
@@ -21,7 +21,7 @@ Every year, **\$13 Trillion USD** (15–20% of global GDP) is transacted through
 
 During this window, an insider holding database administrator credentials can inspect submitted pricing, identify the lowest compliant quote, and retroactively insert or backdate a favored submission. When challenged, the authority points to their internal database: *"That is what our database recorded."*
 
-**BidTrace 3.0** replaces centralized database trust with an **incorruptible, mathematically verifiable cryptographic state machine** anchored to Solana's consensus clock.
+**BidTrace** replaces centralized database trust with an **incorruptible, mathematically verifiable cryptographic state machine** anchored to Solana's consensus clock.
 
 ---
 
@@ -29,7 +29,7 @@ During this window, an insider holding database administrator credentials can in
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   BIDTRACE 3.0 PROTOCOL ENGINE                                   │
+│                                     BIDTRACE PROTOCOL ENGINE                                     │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ 1. FIAT-TO-GAS DECOUPLING                                                                        │
 │    Buyers and contractors interact via standard web portals, PDFs, and fiat invoicing.           │
@@ -155,7 +155,7 @@ wsl -e /bin/bash -l -c "cd /mnt/c/Users/ujjwa/.gemini/antigravity/scratch/bidtra
 ```
 *Output:*
 ```text
-  BidTrace 3.0: Incorruptible Two-Envelope & Blinded Scoring Protocol
+  BidTrace: Incorruptible Two-Envelope & Blinded Scoring Protocol
     ✔ Test 1: Authority initializes Two-Envelope QCBS Tender with OCDS Hash and Deadlines
     ✔ Test 2: Authority initializes Tender Committee with 5 accredited evaluators
     ✔ Test 3: Contractors submit confidential Dual-Envelope Bids (A & B)
@@ -200,4 +200,4 @@ Verifies all 5 procurement lifecycle phases offline against raw Solana account p
 ## 7. License & Credits
 
 Distributed under the **MIT License**.  
-Developed for the **Solana Renaissance / Radar Hackathon** and public procurement integrity global standard.
+Developed for the **Colosseum Crypto World's Fair** hackathon and public procurement integrity global standard.
