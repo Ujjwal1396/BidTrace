@@ -117,11 +117,6 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed_path = self.path.split('?')[0]
 
-        if parsed_path == "/favicon.ico":
-            self.send_response(204)
-            self.end_headers()
-            return
-
         # 1. Protocol Status
         if parsed_path == "/api/status":
             tender = state.ledger.tenders.get(state.tender_pda) if state.tender_pda else None
