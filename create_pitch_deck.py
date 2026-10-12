@@ -11,17 +11,17 @@ def create_deck():
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    # Theme Colors
-    C_BG = RGBColor(10, 15, 29)          # Deep Midnight
-    C_CARD = RGBColor(18, 25, 45)        # Card Background
-    C_CARD_BORDER = RGBColor(30, 41, 70) # Subtle Card Border
+    # Pitchdeck 101 Visual Theme Colors (Dark Slate / Cyber Midnight)
+    C_BG = RGBColor(10, 15, 29)          # Deep Midnight (#0a0f1d)
+    C_CARD = RGBColor(18, 25, 45)        # Card Background (#12192d)
+    C_CARD_BORDER = RGBColor(30, 41, 70) # Subtle Border (#1e2946)
     C_WHITE = RGBColor(255, 255, 255)
-    C_CYAN = RGBColor(6, 182, 212)       # Electric Cyan
-    C_PURPLE = RGBColor(168, 85, 247)    # Purple
-    C_TEXT_MUTED = RGBColor(148, 163, 184) # Muted Grey
-    C_ROSE = RGBColor(244, 63, 94)       # Danger Rose
-    C_EMERALD = RGBColor(16, 185, 129)   # Emerald
-    C_AMBER = RGBColor(245, 158, 11)     # Amber
+    C_CYAN = RGBColor(6, 182, 212)       # Electric Cyan (#06b6d4)
+    C_PURPLE = RGBColor(168, 85, 247)    # Purple (#a855f7)
+    C_TEXT_MUTED = RGBColor(148, 163, 184) # Muted Grey (#94a3b8)
+    C_ROSE = RGBColor(244, 63, 94)       # Danger Rose (#f43f5e)
+    C_EMERALD = RGBColor(16, 185, 129)   # Emerald (#10b981)
+    C_AMBER = RGBColor(245, 158, 11)     # Amber (#f59e0b)
 
     logo_path = os.path.abspath("public/logo-mark.png")
 
@@ -41,17 +41,17 @@ def create_deck():
         return card
 
     # =========================================================================
-    # SLIDE 1: COVER (MINIMALIST & BOLD)
+    # SLIDE 1: COVER SLIDE (Winning One-Liner, <40 words)
     # =========================================================================
     s1 = prs.slides.add_slide(blank_layout)
     apply_bg(s1)
 
-    # Logo Emblem
+    # Logo
     if os.path.exists(logo_path):
-        s1.shapes.add_picture(logo_path, Inches(1.2), Inches(1.6), width=Inches(1.8))
+        s1.shapes.add_picture(logo_path, Inches(1.2), Inches(1.5), width=Inches(1.8))
 
-    # Hackathon Badge
-    b1 = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.3), Inches(1.65), Inches(3.8), Inches(0.45))
+    # Event Badge
+    b1 = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(3.3), Inches(1.55), Inches(4.2), Inches(0.42))
     b1.fill.solid()
     b1.fill.fore_color.rgb = RGBColor(16, 32, 55)
     b1.line.color.rgb = C_CYAN
@@ -62,7 +62,7 @@ def create_deck():
     b1.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
 
     # Brand Title
-    tb_title = s1.shapes.add_textbox(Inches(3.2), Inches(2.15), Inches(9.0), Inches(1.2))
+    tb_title = s1.shapes.add_textbox(Inches(3.2), Inches(2.05), Inches(9.0), Inches(1.2))
     p = tb_title.text_frame.paragraphs[0]
     p.text = "BidTrace"
     p.font.size = Pt(56)
@@ -70,7 +70,7 @@ def create_deck():
     p.font.color.rgb = C_WHITE
 
     # Big Winning Headline
-    tb_h = s1.shapes.add_textbox(Inches(1.2), Inches(3.6), Inches(11.0), Inches(1.3))
+    tb_h = s1.shapes.add_textbox(Inches(1.2), Inches(3.45), Inches(11.0), Inches(1.3))
     tf_h = tb_h.text_frame
     tf_h.word_wrap = True
     p_h = tf_h.paragraphs[0]
@@ -79,16 +79,16 @@ def create_deck():
     p_h.font.bold = True
     p_h.font.color.rgb = C_CYAN
 
-    # 3 Stat Cards (Big Numbers, Minimal Text)
+    # 3 Stat Cards
     stats_s1 = [
-        ("$13.0 Trillion", "Protected Market", C_CYAN),
-        ("400ms Clock", "Proof of History", C_PURPLE),
-        ("Zero Crypto Gas", "Enterprise Sponsored", C_EMERALD)
+        ("$13.0 Trillion", "Annual Sovereign Spend", C_CYAN),
+        ("400ms Clock", "Proof of History Precision", C_PURPLE),
+        ("Zero Crypto Gas", "Enterprise Relayer Sponsored", C_EMERALD)
     ]
     for i, (num, lbl, col) in enumerate(stats_s1):
         bx = Inches(1.2 + i * 3.75)
-        add_card(s1, bx, Inches(5.3), Inches(3.5), Inches(1.4))
-        tb_st = s1.shapes.add_textbox(bx + Inches(0.2), Inches(5.4), Inches(3.1), Inches(1.2))
+        add_card(s1, bx, Inches(5.2), Inches(3.5), Inches(1.5))
+        tb_st = s1.shapes.add_textbox(bx + Inches(0.2), Inches(5.35), Inches(3.1), Inches(1.2))
         tf_st = tb_st.text_frame
         p_n = tf_st.paragraphs[0]
         p_n.text = num
@@ -101,15 +101,15 @@ def create_deck():
         p_l.font.color.rgb = C_TEXT_MUTED
 
     s1.notes_slide.notes_text_frame.text = (
-        "[SLIDE 1 | 0:00 - 0:15 | 32 Words]\n"
-        "\"Judges, every year, $13 trillion is spent on public infrastructure. "
-        "Yet the entire industry relies on centralized database trust. "
+        "[SLIDE 1 | 0:00 - 0:15 | 28 Words on Slide]\n"
+        "\"Judges, every year $13 trillion is spent on public infrastructure, "
+        "yet the entire process runs on centralized database trust. "
         "BidTrace brings tamper-proof sealed bidding to public contracts on Solana, "
-        "making corruption mathematically impossible.\""
+        "making insider tampering mathematically impossible.\""
     )
 
     # =========================================================================
-    # SLIDE 2: THE PROBLEM (COMPARISON CARDS, ZERO FLUFF)
+    # SLIDE 2: THE PROBLEM (Face-Punch Stat + Human Angle, <40 words)
     # =========================================================================
     s2 = prs.slides.add_slide(blank_layout)
     apply_bg(s2)
@@ -117,7 +117,7 @@ def create_deck():
     th2 = s2.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf2 = th2.text_frame
     p = tf2.paragraphs[0]
-    p.text = "THE $13 TRILLION VULNERABILITY"
+    p.text = "THE $13 TRILLION CRITICAL FLAW"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = C_ROSE
@@ -127,61 +127,54 @@ def create_deck():
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # Left Card: Traditional Centralized Failures (Punchy Bullets)
+    # Left: Face-Punch Stat Card
     add_card(s2, Inches(1.0), Inches(1.9), Inches(5.4), Inches(4.8), bg_color=C_CARD, border_color=RGBColor(80, 20, 35))
-    tfl = s2.shapes.add_textbox(Inches(1.3), Inches(2.1), Inches(4.8), Inches(4.4)).text_frame
+    tfl = s2.shapes.add_textbox(Inches(1.3), Inches(2.2), Inches(4.8), Inches(4.2)).text_frame
     tfl.word_wrap = True
-    pl = tfl.paragraphs[0]
-    pl.text = "✖  Centralized E-Procurement"
-    pl.font.size = Pt(20)
-    pl.font.bold = True
-    pl.font.color.rgb = C_ROSE
+    pl1 = tfl.paragraphs[0]
+    pl1.text = "$13 Trillion / Year"
+    pl1.font.size = Pt(36)
+    pl1.font.bold = True
+    pl1.font.color.rgb = C_ROSE
+    pl2 = tfl.add_paragraph()
+    pl2.text = "15% of Global GDP Vulnerable to Insider DBA Access"
+    pl2.font.size = Pt(16)
+    pl2.font.bold = True
+    pl2.font.color.rgb = C_WHITE
+    pl3 = tfl.add_paragraph()
+    pl3.text = "\n• Database admins hold MySQL root keys.\n• Late bids quietly backdated before opening.\n• Price peeking leaks competitor bids."
+    pl3.font.size = Pt(14)
+    pl3.font.color.rgb = C_TEXT_MUTED
 
-    items_bad = [
-        "Root Admin God-Mode (Unencrypted bid peek)",
-        "Retroactive Backdating (MySQL timestamp rewrites)",
-        "Score Collusion (Quiet score inflation behind closed doors)",
-        "Zero Mathematical Proof ('That is what our database recorded')"
-    ]
-    for itm in items_bad:
-        p_t = tfl.add_paragraph()
-        p_t.text = "• " + itm
-        p_t.font.size = Pt(14)
-        p_t.font.color.rgb = C_WHITE
-
-    # Right Card: Cryptographic Solana Reality
+    # Right: The Fundamental Flaw
     add_card(s2, Inches(6.8), Inches(1.9), Inches(5.5), Inches(4.8), bg_color=RGBColor(12, 28, 48), border_color=C_CYAN)
-    tfr = s2.shapes.add_textbox(Inches(7.1), Inches(2.1), Inches(4.9), Inches(4.4)).text_frame
+    tfr = s2.shapes.add_textbox(Inches(7.1), Inches(2.2), Inches(4.9), Inches(4.2)).text_frame
     tfr.word_wrap = True
-    pr = tfr.paragraphs[0]
-    pr.text = "✔  BidTrace on Solana Anchor"
-    pr.font.size = Pt(20)
-    pr.font.bold = True
-    pr.font.color.rgb = C_CYAN
-
-    items_good = [
-        "Consensus Clock Boundary (Slot > deadline = REJECTED)",
-        "Dual-Envelope Sealing (Zero pre-deadline price leakage)",
-        "Olympic Trimmed Mean (On-chain rogue score auto-pruning)",
-        "Air-Gapped Tribunal Verifier (100% offline mathematical proof)"
-    ]
-    for itm in items_good:
-        p_t = tfr.add_paragraph()
-        p_t.text = "• " + itm
-        p_t.font.size = Pt(14)
-        p_t.font.color.rgb = C_CYAN
+    pr1 = tfr.paragraphs[0]
+    pr1.text = "Zero Mathematical Proof"
+    pr1.font.size = Pt(36)
+    pr1.font.bold = True
+    pr1.font.color.rgb = C_CYAN
+    pr2 = tfr.add_paragraph()
+    pr2.text = "Centralized Custody Relies on Blind Human Trust"
+    pr2.font.size = Pt(16)
+    pr2.font.bold = True
+    pr2.font.color.rgb = C_WHITE
+    pr3 = tfr.add_paragraph()
+    pr3.text = "\n• Server timestamps can be rewritten in seconds.\n• Evaluation scores manipulated behind closed doors.\n• No cryptographic audit trail for the public."
+    pr3.font.size = Pt(14)
+    pr3.font.color.rgb = C_TEXT_MUTED
 
     s2.notes_slide.notes_text_frame.text = (
-        "[SLIDE 2 | 0:15 - 0:40 | 54 Words]\n"
-        "\"The fatal flaw in procurement isn't bad people—it's a physical window of time. "
-        "Between the deadline and bid opening, database admins have god-mode. "
-        "They peek at competitor pricing, alter scores, and backdate late bids into MySQL databases. "
-        "BidTrace replaces administrative custody with Solana's consensus clock: "
-        "if a slot expires, code blocks entry forever.\""
+        "[SLIDE 2 | 0:15 - 0:35 | 35 Words on Slide]\n"
+        "\"The fatal flaw in procurement isn't bad people—it's a window of time. "
+        "Between submission deadlines and public opening, database admins have unmonitored root access "
+        "to peek at competitor prices and backdate bids in MySQL. "
+        "Centralized trust fails silently every single day.\""
     )
 
     # =========================================================================
-    # SLIDE 3: TWO-PLANE ARCHITECTURE (CLEAN COLUMNS, NO PARAGRAPHS)
+    # SLIDE 3: SOLUTION (Product as Hero + Analogy, <40 words)
     # =========================================================================
     s3 = prs.slides.add_slide(blank_layout)
     apply_bg(s3)
@@ -189,70 +182,53 @@ def create_deck():
     th3 = s3.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf3 = th3.text_frame
     p = tf3.paragraphs[0]
-    p.text = "PROTOCOL ARCHITECTURE"
+    p.text = "THE HERO MECHANISM"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = C_CYAN
     p2 = tf3.add_paragraph()
-    p2.text = "Two-Plane Decoupled Architecture"
-    p2.font.size = Pt(34)
+    p2.text = "“Chainlink + Sealed Envelopes for Sovereign Capital”"
+    p2.font.size = Pt(32)
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    planes = [
-        ("1. SEMANTIC PLANE", "Off-Chain Standard", [
-            "OCDS 1.1 Compliance (World Bank / UN Standard)",
-            "RFC 8785 (JCS) Deterministic Hashing",
-            "100% Cross-Language Hash Parity",
-            "Direct ERP Ingestion (SAP & Oracle)"
-        ], C_CYAN),
-        ("2. ENFORCEMENT PLANE", "Solana Anchor Engine", [
-            "10 Anchor Rust Instructions Deployed",
-            "Temporal Slot Clock Hardening",
-            "Dual-Envelope PDA State Machine",
-            "Commercial Secrecy Invariant (Locked Forever)"
-        ], C_PURPLE),
-        ("3. GATEWAY PLANE", "Zero-Fiat-Gas Relayer", [
-            "Zero Crypto Gas for Contractors",
-            "4 Hybrid Bond Registry Modes",
-            "SWIFT MT760 & TradFi Surety Integration",
-            "Air-Gapped Tribunal Dossier Verifier"
-        ], C_EMERALD)
+    # 3 Solution Pillars
+    sol_cards = [
+        ("Dual-Envelope Sealing", "OCDS 1.1 Cryptographic Hash", "Technical & financial hashes locked via RFC 8785 canonical standard. Zero leakage.", C_CYAN),
+        ("Proof of History Clock", "Consensus Phase Locks", "Solana 400ms clock makes post-deadline tampering physically impossible.", C_PURPLE),
+        ("Blinded Outlier Pruning", "Olympic Trimmed Mean", "On-chain algorithm automatically prunes collusive scores before price unsealing.", C_EMERALD)
     ]
-
-    for i, (title, sub, bullets, accent) in enumerate(planes):
+    for i, (title, sub, body, accent) in enumerate(sol_cards):
         cx = Inches(1.0 + i * 3.85)
         add_card(s3, cx, Inches(1.9), Inches(3.6), Inches(4.8))
-        tb = s3.shapes.add_textbox(cx + Inches(0.2), Inches(2.1), Inches(3.2), Inches(4.4))
-        tf_c = tb.text_frame
-        tf_c.word_wrap = True
-        pt = tf_c.paragraphs[0]
-        pt.text = title
-        pt.font.size = Pt(16)
-        pt.font.bold = True
-        pt.font.color.rgb = accent
-        ps = tf_c.add_paragraph()
-        ps.text = sub
-        ps.font.size = Pt(12)
-        ps.font.color.rgb = C_TEXT_MUTED
-        tf_c.add_paragraph()
-
-        for b in bullets:
-            pb = tf_c.add_paragraph()
-            pb.text = "▪ " + b
-            pb.font.size = Pt(13)
-            pb.font.color.rgb = C_WHITE
+        tb = s3.shapes.add_textbox(cx + Inches(0.2), Inches(2.2), Inches(3.2), Inches(4.2))
+        tf = tb.text_frame
+        tf.word_wrap = True
+        p1 = tf.paragraphs[0]
+        p1.text = title
+        p1.font.size = Pt(18)
+        p1.font.bold = True
+        p1.font.color.rgb = accent
+        p2 = tf.add_paragraph()
+        p2.text = sub
+        p2.font.size = Pt(12)
+        p2.font.bold = True
+        p2.font.color.rgb = C_TEXT_MUTED
+        p3 = tf.add_paragraph()
+        p3.text = "\n" + body
+        p3.font.size = Pt(14)
+        p3.font.color.rgb = C_WHITE
 
     s3.notes_slide.notes_text_frame.text = (
-        "[SLIDE 3 | 0:40 - 1:05 | 55 Words]\n"
-        "\"To solve this without forcing governments to hold crypto, we built a two-plane architecture. "
-        "Off-chain, we serialize tenders using the World Bank's OCDS 1.1 standard and RFC 8785 canonical hashing. "
-        "On-chain, ten Solana Anchor instructions enforce temporal phase locks, blinded evaluator rubrics, "
-        "and commercial secrecy—sponsored by a zero-fiat-gas relayer.\""
+        "[SLIDE 3 | 0:35 - 0:55 | 34 Words on Slide]\n"
+        "\"BidTrace is Chainlink meets sealed envelopes for sovereign infrastructure. "
+        "Our unique insight: Solana's 400ms Proof of History turns time into an unalterable physical law. "
+        "Contractors seal dual envelopes, expired slots are rejected by validators, "
+        "and evaluator collusion is pruned on-chain.\""
     )
 
     # =========================================================================
-    # SLIDE 4: 4-STAGE LIFECYCLE & LIVE DEFENSES (ACTIONABLE TILES)
+    # SLIDE 4: MARKET OPPORTUNITY (Macro Trends & Dream State, <40 words)
     # =========================================================================
     s4 = prs.slides.add_slide(blank_layout)
     apply_bg(s4)
@@ -260,77 +236,66 @@ def create_deck():
     th4 = s4.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf4 = th4.text_frame
     p = tf4.paragraphs[0]
-    p.text = "END-TO-END CRYPTOGRAPHIC PIPELINE"
+    p.text = "MACRO SHIFT & BOTTOMS-UP OPPORTUNITY"
     p.font.size = Pt(13)
     p.font.bold = True
-    p.font.color.rgb = C_EMERALD
+    p.font.color.rgb = C_PURPLE
     p2 = tf4.add_paragraph()
-    p2.text = "The 4-Stage Lifecycle & Tested Adversarial Defenses"
+    p2.text = "From Administrative Paper to Incorruptible Rails"
     p2.font.size = Pt(34)
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # 4 Minimal Step Tiles
-    steps = [
-        ("STAGE 1", "Tender Issued", "Canonical OCDS Notice + Slot Cutoff", C_CYAN),
-        ("STAGE 2", "Dual-Envelopes", "Blinded Technical & Financial Bids", C_PURPLE),
-        ("STAGE 3", "Blinded Scoring", "Olympic Trimmed Mean Outlier Pruning", C_AMBER),
-        ("STAGE 4", "QCBS Award", "Qualified Unseal & Deterministic Winner", C_EMERALD)
-    ]
-    for i, (stg, stitle, sdesc, scol) in enumerate(steps):
-        sx = Inches(1.0 + i * 2.88)
-        add_card(s4, sx, Inches(1.9), Inches(2.7), Inches(2.0))
-        tbs = s4.shapes.add_textbox(sx + Inches(0.15), Inches(2.0), Inches(2.4), Inches(1.8)).text_frame
-        tbs.word_wrap = True
-        p1 = tbs.paragraphs[0]
-        p1.text = stg
-        p1.font.size = Pt(11)
-        p1.font.bold = True
-        p1.font.color.rgb = scol
-        p2 = tbs.add_paragraph()
-        p2.text = stitle
-        p2.font.size = Pt(16)
-        p2.font.bold = True
-        p2.font.color.rgb = C_WHITE
-        p3 = tbs.add_paragraph()
-        p3.text = sdesc
-        p3.font.size = Pt(11)
-        p3.font.color.rgb = C_TEXT_MUTED
+    # Left: Macro Trends & Dream State
+    add_card(s4, Inches(1.0), Inches(1.9), Inches(5.6), Inches(4.8))
+    tf_m = s4.shapes.add_textbox(Inches(1.3), Inches(2.2), Inches(5.0), Inches(4.2)).text_frame
+    tf_m.word_wrap = True
+    pm1 = tf_m.paragraphs[0]
+    pm1.text = "Macro Trends & The Dream State"
+    pm1.font.size = Pt(18)
+    pm1.font.bold = True
+    pm1.font.color.rgb = C_CYAN
+    pm2 = tf_m.add_paragraph()
+    pm2.text = "\n• World Bank Mandate: Enforces OCDS 1.1 anti-corruption standard across all projects.\n• TradFi On-Chain Shift: Multilateral development bank tenders migrating to Web3 verification.\n• Dream State: Zero kickback windows, instant cryptographic audit proofs, and automated surety release."
+    pm2.font.size = Pt(14)
+    pm2.font.color.rgb = C_WHITE
 
-    # Bottom Banner: 4 Tested Adversarial Attacks Rejected On-Chain
-    add_card(s4, Inches(1.0), Inches(4.15), Inches(11.33), Inches(2.75))
-    tb_def = s4.shapes.add_textbox(Inches(1.2), Inches(4.25), Inches(10.9), Inches(2.55))
-    tf_def = tb_def.text_frame
-    tf_def.word_wrap = True
-    p_def = tf_def.paragraphs[0]
-    p_def.text = "TESTED ADVERSARIAL ATTACKS REJECTED ON SOLANA DEVNET"
-    p_def.font.size = Pt(13)
-    p_def.font.bold = True
-    p_def.font.color.rgb = C_ROSE
+    # Right: Bottoms-Up TAM / SAM Cards
+    add_card(s4, Inches(7.0), Inches(1.9), Inches(5.3), Inches(2.25), bg_color=RGBColor(12, 28, 48), border_color=C_CYAN)
+    tft1 = s4.shapes.add_textbox(Inches(7.3), Inches(2.1), Inches(4.7), Inches(1.9)).text_frame
+    tft1.word_wrap = True
+    pt1 = tft1.paragraphs[0]
+    pt1.text = "$500 Billion SAM"
+    pt1.font.size = Pt(30)
+    pt1.font.bold = True
+    pt1.font.color.rgb = C_CYAN
+    pt2 = tft1.add_paragraph()
+    pt2.text = "Multilateral Development Bank Tenders (Immediate Beachhead)"
+    pt2.font.size = Pt(13)
+    pt2.font.color.rgb = C_TEXT_MUTED
 
-    attacks = [
-        ("Late Bidder Injected", "Anchor Error: SubmissionDeadlineExceeded (0x1773)"),
-        ("Price Tampering (-$500k)", "Anchor Error: InvalidRevealHash (0x1775)"),
-        ("Rogue Judge 98% Score", "On-Chain Filter: OlympicTrimmedMeanPruned"),
-        ("Trade Secret Leak", "Anchor Error: CommercialSecrecyLock")
-    ]
-    for att, res in attacks:
-        p_row = tf_def.add_paragraph()
-        p_row.text = f"🛑  {att}  ➔  {res}"
-        p_row.font.size = Pt(13)
-        p_row.font.color.rgb = C_WHITE
+    add_card(s4, Inches(7.0), Inches(4.45), Inches(5.3), Inches(2.25), bg_color=C_CARD, border_color=C_PURPLE)
+    tft2 = s4.shapes.add_textbox(Inches(7.3), Inches(4.65), Inches(4.7), Inches(1.9)).text_frame
+    tft2.word_wrap = True
+    pt3 = tft2.paragraphs[0]
+    pt3.text = "$13.0 Trillion TAM"
+    pt3.font.size = Pt(30)
+    pt3.font.bold = True
+    pt3.font.color.rgb = C_PURPLE
+    pt4 = tft2.add_paragraph()
+    pt4.text = "Total Annual Global Public Infrastructure Procurement"
+    pt4.font.size = Pt(13)
+    pt4.font.color.rgb = C_TEXT_MUTED
 
     s4.notes_slide.notes_text_frame.text = (
-        "[SLIDE 4 | 1:05 - 1:30 | 56 Words]\n"
-        "\"Here is the live lifecycle. Stage 1: Tenders are published with canonical hashes. "
-        "Stage 2: Contractors seal dual envelopes. Stage 3: Evaluators grade blindly, "
-        "and our on-chain trimmed mean automatically prunes rogue scores. "
-        "Stage 4: Only qualified bids unseal price. "
-        "In our attack simulator, late bids, price tampering, and data leaks get rejected on-chain.\""
+        "[SLIDE 4 | 0:55 - 1:15 | 36 Words on Slide]\n"
+        "\"The macro tailwind is massive: the World Bank and UN now mandate OCDS 1.1 data standards "
+        "to combat systemic fraud. Our bottoms-up beachhead is the $500 billion in development bank tenders. "
+        "The dream state is clear: incorruptible sovereign capital where kickbacks are cryptographically eliminated.\""
     )
 
     # =========================================================================
-    # SLIDE 5: WHY SOLANA (3 CLEAN METRIC PILLARS)
+    # SLIDE 5: HERO METRICS ("This Is Already Working!", <40 words)
     # =========================================================================
     s5 = prs.slides.add_slide(blank_layout)
     apply_bg(s5)
@@ -338,67 +303,54 @@ def create_deck():
     th5 = s5.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf5 = th5.text_frame
     p = tf5.paragraphs[0]
-    p.text = "THE SOLANA ADVANTAGE"
+    p.text = "TRACTION & VERIFIED EXECUTION"
     p.font.size = Pt(13)
     p.font.bold = True
-    p.font.color.rgb = C_PURPLE
+    p.font.color.rgb = C_EMERALD
     p2 = tf5.add_paragraph()
-    p2.text = "Why Solana is Structurally Required"
+    p2.text = "“This Is Already Working Live on Solana”"
     p2.font.size = Pt(34)
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    sol_pillars = [
-        ("400ms Proof of History", "Temporal Finality", [
-            "Sub-second statutory cutoff precision",
-            "Zero retroactive block jitter or timestamp edits",
-            "Mathematical guarantee over historical slots"
-        ], C_CYAN),
-        ("Micro-Cent Network Fees", "Granular State Updates", [
-            "5-stage multi-envelope state transitions",
-            "5 evaluator score commits per tender",
-            "< $0.01 total gas per entire tender lifecycle"
-        ], C_PURPLE),
-        ("Zero-Gas Gateway", "Frictionless TradFi Adoption", [
-            "Zero crypto balance required for contractors",
-            "Sponsored relayer pays all network gas",
-            "100% compliant with sovereign treasury laws"
-        ], C_EMERALD)
+    # 4 Hero Metric Tiles
+    metrics = [
+        ("10", "Anchor Instructions", "Deployed on Solana Devnet (x3iSm5BC...ESjZ)", C_CYAN),
+        ("78 / 78", "Passing Unit Tests", "100% Cross-Language RFC 8785 Parity", C_EMERALD),
+        ("1-Click", "Attack Simulator", "Live On-Chain Exploits Blocked in Real-Time", C_ROSE),
+        ("0 Gas", "Relayer Protocol", "Live at bidtrace.net with Zero Crypto Friction", C_PURPLE)
     ]
-
-    for i, (title, sub, bullets, accent) in enumerate(sol_pillars):
-        cx = Inches(1.0 + i * 3.85)
-        add_card(s5, cx, Inches(1.9), Inches(3.6), Inches(4.8))
-        tb = s5.shapes.add_textbox(cx + Inches(0.2), Inches(2.1), Inches(3.2), Inches(4.4))
-        tf_c = tb.text_frame
-        tf_c.word_wrap = True
-        pt = tf_c.paragraphs[0]
-        pt.text = title
-        pt.font.size = Pt(17)
-        pt.font.bold = True
-        pt.font.color.rgb = accent
-        ps = tf_c.add_paragraph()
-        ps.text = sub
-        ps.font.size = Pt(12)
-        ps.font.color.rgb = C_TEXT_MUTED
-        tf_c.add_paragraph()
-
-        for b in bullets:
-            pb = tf_c.add_paragraph()
-            pb.text = "▪ " + b
-            pb.font.size = Pt(13)
-            pb.font.color.rgb = C_WHITE
+    for i, (num, title, sub, col) in enumerate(metrics):
+        mx = Inches(1.0 + i * 2.88)
+        add_card(s5, mx, Inches(1.9), Inches(2.7), Inches(4.8))
+        tb_m = s5.shapes.add_textbox(mx + Inches(0.15), Inches(2.2), Inches(2.4), Inches(4.2))
+        tf_m = tb_m.text_frame
+        tf_m.word_wrap = True
+        p1 = tf_m.paragraphs[0]
+        p1.text = num
+        p1.font.size = Pt(36)
+        p1.font.bold = True
+        p1.font.color.rgb = col
+        p2 = tf_m.add_paragraph()
+        p2.text = title
+        p2.font.size = Pt(16)
+        p2.font.bold = True
+        p2.font.color.rgb = C_WHITE
+        p3 = tf_m.add_paragraph()
+        p3.text = "\n" + sub
+        p3.font.size = Pt(13)
+        p3.font.color.rgb = C_TEXT_MUTED
 
     s5.notes_slide.notes_text_frame.text = (
-        "[SLIDE 5 | 1:30 - 1:50 | 44 Words]\n"
-        "\"Why Solana? Two reasons: Proof of History and cost. "
-        "Solana's 400-millisecond slot clock provides the sub-second temporal certainty required to legally freeze bids. "
-        "And because transactions cost fractions of a cent, our relayer sponsors all gas, "
-        "allowing governments to adopt Web3 guarantees without holding volatile crypto.\""
+        "[SLIDE 5 | 1:15 - 1:35 | 36 Words on Slide]\n"
+        "\"This is not a slide concept—BidTrace is already working. "
+        "We have 10 Anchor Rust instructions deployed on Solana Devnet, "
+        "78 passing unit tests with 100% hash parity, and an adversarial attack simulator live right now "
+        "at bidtrace.net where you can watch live exploits fail on-chain.\""
     )
 
     # =========================================================================
-    # SLIDE 6: TRACTION & ASK (BIG STATS, CLEAN CTAS)
+    # SLIDE 6: BUSINESS MODEL ("Why Will This Keep Working!", <40 words)
     # =========================================================================
     s6 = prs.slides.add_slide(blank_layout)
     apply_bg(s6)
@@ -406,73 +358,124 @@ def create_deck():
     th6 = s6.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
     tf6 = th6.text_frame
     p = tf6.paragraphs[0]
-    p.text = "VERIFIED EXECUTION"
+    p.text = "NETWORK EFFECTS & SUSTAINABLE REVENUE"
     p.font.size = Pt(13)
     p.font.bold = True
     p.font.color.rgb = C_CYAN
     p2 = tf6.add_paragraph()
-    p2.text = "Shipped, Tested, and Verified on Solana Devnet"
+    p2.text = "“Why This Keeps Growing: The Relayer Moat”"
     p2.font.size = Pt(34)
     p2.font.bold = True
     p2.font.color.rgb = C_WHITE
 
-    # 4 Big Stat Numbers
-    stat_boxes = [
-        ("10", "Anchor Instructions", "Deployed on Devnet", C_CYAN),
-        ("78 / 78", "Passing Unit Tests", "100% Hash Parity", C_EMERALD),
-        ("5 / 5", "Storyboard Steps", "1-Click Interactive HUD", C_PURPLE),
-        ("4", "Hybrid Bond Modes", "TradFi + Crypto", C_AMBER)
-    ]
-    for i, (num, title, sub, col) in enumerate(stat_boxes):
-        ax = Inches(1.0 + i * 2.88)
-        add_card(s6, ax, Inches(1.9), Inches(2.7), Inches(2.1))
-        tb_a = s6.shapes.add_textbox(ax + Inches(0.15), Inches(2.0), Inches(2.4), Inches(1.9))
-        tfa = tb_a.text_frame
-        tfa.word_wrap = True
-        p1 = tfa.paragraphs[0]
-        p1.text = num
-        p1.font.size = Pt(32)
-        p1.font.bold = True
-        p1.font.color.rgb = col
-        p2 = tfa.add_paragraph()
-        p2.text = title
-        p2.font.size = Pt(13)
-        p2.font.bold = True
-        p2.font.color.rgb = C_WHITE
-        p3 = tfa.add_paragraph()
-        p3.text = sub
-        p3.font.size = Pt(11)
-        p3.font.color.rgb = C_TEXT_MUTED
+    # Left: Revenue Mechanics
+    add_card(s6, Inches(1.0), Inches(1.9), Inches(5.4), Inches(4.8), bg_color=C_CARD, border_color=C_CYAN)
+    tf_b1 = s6.shapes.add_textbox(Inches(1.3), Inches(2.2), Inches(4.8), Inches(4.2)).text_frame
+    tf_b1.word_wrap = True
+    pb1 = tf_b1.paragraphs[0]
+    pb1.text = "Monetization Streams"
+    pb1.font.size = Pt(20)
+    pb1.font.bold = True
+    pb1.font.color.rgb = C_CYAN
+    pb2 = tf_b1.add_paragraph()
+    pb2.text = "\n• 0.05% Protocol Fee: Settled contract volume ($250M ARR at 1% market penetration).\n• Surety Underwriting API: Verification fees paid by commercial surety bond providers.\n• Zero Crypto Gas: Relayer eliminates balance friction for enterprise bidders."
+    pb2.font.size = Pt(14)
+    pb2.font.color.rgb = C_WHITE
 
-    # Bottom Link Box
-    add_card(s6, Inches(1.0), Inches(4.35), Inches(11.33), Inches(2.45), bg_color=RGBColor(12, 28, 48), border_color=C_CYAN)
-    tfc = s6.shapes.add_textbox(Inches(1.3), Inches(4.55), Inches(10.7), Inches(2.1)).text_frame
+    # Right: Flywheel & Network Effects
+    add_card(s6, Inches(6.8), Inches(1.9), Inches(5.5), Inches(4.8), bg_color=RGBColor(12, 28, 48), border_color=C_PURPLE)
+    tf_b2 = s6.shapes.add_textbox(Inches(7.1), Inches(2.2), Inches(4.9), Inches(4.2)).text_frame
+    tf_b2.word_wrap = True
+    pb3 = tf_b2.paragraphs[0]
+    pb3.text = "Network Effects & Moat"
+    pb3.font.size = Pt(20)
+    pb3.font.bold = True
+    pb3.font.color.rgb = C_PURPLE
+    pb4 = tf_b2.add_paragraph()
+    pb4.text = "\n• Municipal Onboarding Flywheel: Each city onboarded locks regional contractors into the BidTrace relayer.\n• Relayer Sticky Moat: Enterprise API contracts ensure sustainable long-term cash flow.\n• Standards Lock-In: Becomes the mandatory OCDS 1.1 compliance layer."
+    pb4.font.size = Pt(14)
+    pb4.font.color.rgb = C_WHITE
+
+    s6.notes_slide.notes_text_frame.text = (
+        "[SLIDE 6 | 1:35 - 1:50 | 39 Words on Slide]\n"
+        "\"Why does this keep working? Our business model scales with volume: "
+        "a 0.05% protocol take-rate on awarded contracts plus TradFi surety underwriting fees. "
+        "Our network effect is the zero-gas relayer: contractors pay no crypto gas, "
+        "and each onboarded government locks hundreds of contractors into our verification rail.\""
+    )
+
+    # =========================================================================
+    # SLIDE 7: TEAM (Founder-Market Fit & Credentials, <40 words)
+    # =========================================================================
+    s7 = prs.slides.add_slide(blank_layout)
+    apply_bg(s7)
+
+    th7 = s7.shapes.add_textbox(Inches(1.0), Inches(0.6), Inches(11.3), Inches(1.1))
+    tf7 = th7.text_frame
+    p = tf7.paragraphs[0]
+    p.text = "FOUNDER-PROBLEM FIT"
+    p.font.size = Pt(13)
+    p.font.bold = True
+    p.font.color.rgb = C_AMBER
+    p2 = tf7.add_paragraph()
+    p2.text = "Built for Sovereign Cryptographic Settlement"
+    p2.font.size = Pt(34)
+    p2.font.bold = True
+    p2.font.color.rgb = C_WHITE
+
+    # 3 Competency Pillars
+    team_cards = [
+        ("Solana Anchor Engineering", "High-Throughput State Machines", "Specialized in temporal phase locks, blinded commitments, and on-chain Olympic scoring algorithms.", C_CYAN),
+        ("OCDS 1.1 Cryptography", "World Bank Standards", "Expertise in RFC 8785 canonical hashing and institutional open-contracting data models.", C_PURPLE),
+        ("TradFi & B2G Protocols", "Zero-Friction Enterprise", "Architected zero-gas relayers and hybrid surety bond registries compliant with sovereign finance laws.", C_EMERALD)
+    ]
+    for i, (title, sub, body, accent) in enumerate(team_cards):
+        cx = Inches(1.0 + i * 3.85)
+        add_card(s7, cx, Inches(1.9), Inches(3.6), Inches(3.8))
+        tb = s7.shapes.add_textbox(cx + Inches(0.2), Inches(2.1), Inches(3.2), Inches(3.4))
+        tf = tb.text_frame
+        tf.word_wrap = True
+        p1 = tf.paragraphs[0]
+        p1.text = title
+        p1.font.size = Pt(17)
+        p1.font.bold = True
+        p1.font.color.rgb = accent
+        p2 = tf.add_paragraph()
+        p2.text = sub
+        p2.font.size = Pt(12)
+        p2.font.bold = True
+        p2.font.color.rgb = C_TEXT_MUTED
+        p3 = tf.add_paragraph()
+        p3.text = "\n" + body
+        p3.font.size = Pt(13)
+        p3.font.color.rgb = C_WHITE
+
+    # Bottom Submission Card
+    add_card(s7, Inches(1.0), Inches(5.95), Inches(11.33), Inches(1.15), bg_color=RGBColor(12, 28, 48), border_color=C_CYAN)
+    tfc = s7.shapes.add_textbox(Inches(1.2), Inches(6.05), Inches(10.9), Inches(0.95)).text_frame
     tfc.word_wrap = True
     pc1 = tfc.paragraphs[0]
-    pc1.text = "THE SETTLEMENT LAYER FOR SOVEREIGN CAPITAL"
-    pc1.font.size = Pt(15)
+    pc1.text = "COLOSSEUM CRYPTO WORLD'S FAIR 2026 SUBMISSION"
+    pc1.font.size = Pt(13)
     pc1.font.bold = True
     pc1.font.color.rgb = C_CYAN
     pc2 = tfc.add_paragraph()
-    pc2.text = "Live Interactive Web App: bidtrace.net"
-    pc2.font.size = Pt(20)
-    pc2.font.bold = True
+    pc2.text = "Live Protocol: bidtrace.net  |  Program ID: x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ  |  GitHub: Ujjwal1396/BidTrace"
+    pc2.font.size = Pt(12)
     pc2.font.color.rgb = C_WHITE
-    pc3 = tfc.add_paragraph()
-    pc3.text = "Program ID: x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ  |  GitHub: Ujjwal1396/BidTrace"
-    pc3.font.size = Pt(13)
-    pc3.font.color.rgb = C_TEXT_MUTED
 
-    s6.notes_slide.notes_text_frame.text = (
-        "[SLIDE 6 | 1:50 - 2:00 | 25 Words]\n"
-        "\"BidTrace is fully functional today: live on Solana Devnet, backed by 78 passing unit tests and a live web app at bidtrace.net. "
-        "Thank you!\""
+    s7.notes_slide.notes_text_frame.text = (
+        "[SLIDE 7 | 1:50 - 2:00 | 39 Words on Slide]\n"
+        "\"We are uniquely equipped for this problem—combining deep expertise in Solana Anchor engineering, "
+        "World Bank OCDS standards, and institutional compliance. "
+        "We built BidTrace to give the world incorruptible public infrastructure. "
+        "Thank you.\""
     )
 
     out_file = "BidTrace_Pitch_Deck_2Min.pptx"
     prs.save(out_file)
     prs.save("public/" + out_file)
-    print("Clean, minimalist deck saved to BidTrace_Pitch_Deck_2Min.pptx and public/!")
+    print(f"Pitchdeck 101 aligned deck with 7 slides saved to {out_file} and public/{out_file}!")
 
 if __name__ == "__main__":
     create_deck()
