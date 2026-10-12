@@ -1,4 +1,5 @@
-# BidTrace: Tamper-Proof Sealed Bidding for Public Contracts on Solana
+# BidTrace: No More Bid Rigging
+> **Cryptographic sealed bidding for public infrastructure contracts powered by Solana.**
 
 [![Tests](https://img.shields.io/badge/python--tests-32%20passed-brightgreen.svg)]()
 [![Solana Integration](https://img.shields.io/badge/anchor--tests-8%20passed-brightgreen.svg)]()

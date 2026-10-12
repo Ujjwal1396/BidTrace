@@ -69,14 +69,18 @@ def create_deck():
     p.font.color.rgb = C_WHITE
 
     # Big Winning Headline
-    tb_h = s1.shapes.add_textbox(Inches(1.2), Inches(3.45), Inches(11.0), Inches(1.3))
+    tb_h = s1.shapes.add_textbox(Inches(1.2), Inches(3.45), Inches(11.0), Inches(1.5))
     tf_h = tb_h.text_frame
     tf_h.word_wrap = True
     p_h = tf_h.paragraphs[0]
-    p_h.text = "Tamper-Proof Sealed Bidding for Public Contracts on Solana"
-    p_h.font.size = Pt(32)
+    p_h.text = "No More Bid Rigging."
+    p_h.font.size = Pt(36)
     p_h.font.bold = True
     p_h.font.color.rgb = C_CYAN
+    p_sub = tf_h.add_paragraph()
+    p_sub.text = "Cryptographic sealed bidding for public infrastructure contracts."
+    p_sub.font.size = Pt(18)
+    p_sub.font.color.rgb = C_TEXT_MUTED
 
     # 3 Stat Cards
     stats_s1 = [
@@ -100,10 +104,10 @@ def create_deck():
         p_l.font.color.rgb = C_TEXT_MUTED
 
     s1.notes_slide.notes_text_frame.text = (
-        "[SLIDE 1 | 0:00 - 0:15 | 28 Words on Slide]\n"
+        "[SLIDE 1 | 0:00 - 0:15 | 24 Words on Slide]\n"
         "\"Judges, every year $13 trillion is spent on public infrastructure, "
-        "yet the entire industry runs on centralized database trust. "
-        "BidTrace brings tamper-proof sealed bidding to public contracts on Solana, "
+        "yet bid rigging and database tampering steal up to 25% of that capital. "
+        "BidTrace eliminates bid rigging with cryptographic sealed bidding on Solana, "
         "turning administrative trust into mathematical certainty.\""
     )
 

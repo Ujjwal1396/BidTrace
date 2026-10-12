@@ -8,12 +8,12 @@
 ---
 
 ### Slide 1: Cover Slide (0:00 – 0:15)
-* **Headline on Slide:** *Tamper-Proof Sealed Bidding for Public Contracts on Solana*
+* **Headline on Slide:** *No More Bid Rigging: Cryptographic sealed bidding for public infrastructure contracts*
 * **Metrics Shown:** `$13.0 Trillion` Annual Spend | `400ms Clock` Proof of History | `Zero Crypto Gas` Relayer
 * **Speaker Script (15s):**
-  > "Judges, every year $13 trillion is spent on public infrastructure, yet the entire industry runs on centralized database trust.
+  > "Judges, every year $13 trillion is spent on public infrastructure, yet bid rigging and database tampering steal up to 25% of that capital.
   >
-  > BidTrace brings tamper-proof sealed bidding to public contracts on Solana, turning administrative trust into mathematical certainty."
+  > BidTrace eliminates bid rigging through cryptographic sealed bidding on Solana, turning administrative trust into mathematical certainty."
 * **Pitch Defense Checkpoint:** Instantly frames the massive institutional TAM without buzzword soup, anchoring Solana's Proof of History clock as the core mechanism in the first 10 seconds.
 
 ---
