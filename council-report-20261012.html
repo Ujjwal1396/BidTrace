@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Council Report — BidTrace 3.0 Frontend Finalization</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f293d;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --cyan: #06b6d4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-solana { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .badge-colosseum { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    h1 { font-size: 1.85rem; font-weight: 800; margin: 0.75rem 0 0.5rem; letter-spacing: -0.02em; }
+    .meta-subtitle { color: var(--text-muted); font-size: 0.95rem; }
+    
+    /* Executive Verdict Card */
+    .verdict-card {
+      background: linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      border-radius: 1rem;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 25px -5px var(--accent-glow);
+    }
+    .verdict-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #c7d2fe;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .verdict-box {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+    
+    /* Section Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+    .panel-header {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .panel-list { list-style: none; }
+    .panel-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+      font-size: 0.88rem;
+      color: #d1d5db;
+    }
+    .panel-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    
+    /* Alignment Matrix */
+    .matrix-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .matrix-pill {
+      flex: 1;
+      padding: 0.6rem;
+      border-radius: 0.5rem;
+      font-size: 0.78rem;
+      text-align: center;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .pill-agree { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+    .pill-clash { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+    .pill-reject { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+    /* Collapsible Advisor Details */
+    details {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.65rem;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    summary {
+      padding: 0.9rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    summary:hover { background: rgba(255, 255, 255, 0.05); }
+    .advisor-content {
+      padding: 1.2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Action Plan Callout */
+    .action-callout {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .action-step {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .step-text h4 { font-size: 0.95rem; margin-bottom: 0.25rem; color: #e2e8f0; }
+    .step-text p { font-size: 0.85rem; color: var(--text-muted); }
+    
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span class="badge badge-colosseum">Colosseum Hackathon</span>
+        <span class="badge badge-solana">Solana Anchor Program</span>
+      </div>
+      <h1>LLM Council Verdict: BidTrace 3.0 Frontend Strategy</h1>
+      <p class="meta-subtitle">Concurrence of 5 Independent AI Advisors with Anonymized Peer Review</p>
+    </header>
+
+    <!-- EXECUTIVE VERDICT -->
+    <section class="verdict-card">
+      <div class="verdict-title">
+        <span>⚖️ Council Consensus Verdict</span>
+      </div>
+      <div class="verdict-box">
+        Reject both false extremes. Build an <strong>"Interactive Product Storyboard"</strong>: Keep your monolithic <code>public/index.html</code>, add a 90-minute Executive Hero facade at the top, and pin a 5-step guided walkthrough bar directly to the 1-Click Attack Simulator.
+      </div>
+      <p style="font-size: 0.88rem; color: #cbd5e1;">
+        Colosseum judges review 50+ projects in a sitting. A generic Web2 SaaS landing page looks like vaporware, while an unguided 7-tab console murders your 3-minute video pitch. Your winning weapon is <strong>live adversarial cryptographic proof</strong> on Solana.
+      </p>
+    </section>
+
+    <!-- AGREEMENT / CLASH MATRIX -->
+    <section style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Advisor Alignment Breakdown</h3>
+      <div class="matrix-bar">
+        <div class="matrix-pill pill-agree">4/5 Voted Executor (Action Triage)</div>
+        <div class="matrix-pill pill-agree">Unanimous: Keep Monolith HTML</div>
+        <div class="matrix-pill pill-agree">Unanimous: Attack = Killer Feature</div>
+        <div class="matrix-pill pill-reject">Rejected: Scope Creep & Telemetry</div>
+      </div>
+    </section>
+
+    <!-- COMPARISON PANELS -->
+    <div class="grid-2">
+      <!-- Where Council Agrees -->
+      <div class="panel">
+        <div class="panel-header" style="color: #34d399;">
+          <span>✅ High-Confidence Consensus</span>
+        </div>
+        <ul class="panel-list">
+          <li><strong>Do Not Split Files:</strong> Preserve the single <code>public/index.html</code> monolith. Routing or framework rewrites before deadline invite disaster.</li>
+          <li><strong>The Hackathon Climax:</strong> The "1-Click Demo & Attacks" is your core value proposition. Put Solana error modals (<code>DeadlineExceeded</code>) front and center.</li>
+          <li><strong>Zero-Friction Relayer:</strong> Run the demo through the backend gas relayer (<code>server.py</code>) so judges don't need Phantom or testnet SOL.</li>
+        </ul>
+      </div>
+
+      <!-- Critical Blind Spot Caught -->
+      <div class="panel">
+        <div class="panel-header" style="color: #f87171;">
+          <span>🚨 Critical Blind Spot Caught</span>
+        </div>
+        <ul class="panel-list">
+          <li><strong>The Devnet RPC Russian Roulette:</strong> If public Solana Devnet RPC drops or lags during your screen recording, the 3-minute pitch is ruined with dead air.</li>
+          <li><strong>Deterministic Fallback:</strong> Provide a pre-seeded local replay toggle ensuring 100% predictable transaction receipts on the very first recording run.</li>
+          <li><strong>Deep-Linked Proofs:</strong> Include pre-validated Solana Explorer transaction links (<code>x3iSm...</code>) so judges can verify proofs without touching wallets.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TACTICAL 3-STEP ACTION PLAN -->
+    <section class="action-callout">
+      <h3 style="font-size: 1.1rem; color: #e0f2fe; margin-bottom: 0.25rem;">The Exact 90-Minute Execution Blueprint</h3>
+      <p style="font-size: 0.85rem; color: #94a3b8;">Implement these three changes in <code>public/index.html</code> and freeze code for video rehearsal:</p>
+
+      <div class="action-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Skin the Existing Monolith with an Executive Hero</h4>
+          <p>Add a clean dark-mode banner above the tabs with plain English: <em>"Tamper-Proof Public Procurement on Solana: Eliminating Post-Deadline Corruption with Cryptographic State Machines."</em> Include live status badges: Devnet Live, OCDS 1.1, Zero-Gas Relayer.</p>
+        </div>
+      </div>
+
+      <div class="action-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Pin a 5-Step Guided Storyboard Bar</h4>
+          <p>Embed a prominent progress bar: <code>[1. Setup] → [2. Dual Bids] → [3. Attack Blocked] → [4. Trimmed Scoring] → [5. Award & Audit]</code>. Clicking each step switches the view and executes the action, matching your 3-minute script with zero fumbling.</p>
+        </div>
+      </div>
+
+      <div class="action-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Cinematic Attack Toast Alerts & Fallback Explorer Links</h4>
+          <p>When an attack is triggered, fire a high-visibility modal displaying <code>Anchor Program Rejected: Slot > Deadline</code> with a clickable Solana Explorer Devnet transaction link.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLLAPSIBLE ADVISOR TRANSCRIPTS -->
+    <section style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Full Advisor Submissions & Peer Reviews</h3>
+
+      <details>
+        <summary>
+          <span>The Executor (Ranked #1 Strongest by Council)</span>
+          <span style="color: var(--accent); font-size: 0.8rem;">View Position &rarr;</span>
+        </summary>
+        <div class="advisor-content">
+          Rebuilding a separate "production-ready" marketing landing page right now is suicide. You already have a monolithic <code>public/index.html</code> with 7 tabs and Devnet integration—do not touch its architecture. Put a high-gloss facade on the existing monolith in 90 minutes max, anchor the 3-minute video to the automated 1-Click Demo tab via <code>server.py</code> to avoid wallet popup delays and dead air, and code-freeze. Done beats pretty; rehearsed beats redesigned.
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <span>The Outsider (Ranked #2 Strongest by Council)</span>
+          <span style="color: var(--accent); font-size: 0.8rem;">View Position &rarr;</span>
+        </summary>
+        <div class="advisor-content">
+          Diagnosed the "builder's curse." A tired hackathon judge reviewing their 51st project will not roleplay five different municipal bureaucrats just to see if your Anchor program works. Keep backend acronyms (OCDS 1.1, JCS) in technical badges, use a plain-English headline (<em>"Tamper-proof public procurement on Solana. Sealed bids. Mathematical integrity. Zero kickbacks."</em>), and embed a guided 60-second interactive demo right in the center.
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <span>The Contrarian (The Red Team)</span>
+          <span style="color: var(--accent); font-size: 0.8rem;">View Position &rarr;</span>
+        </summary>
+        <div class="advisor-content">
+          Warned that generic Enterprise SaaS pages trigger hackathon judges' scam radars. Every second spent scrolling marketing copy is stolen from proving your Anchor program actually does what it claims. On the other hand, an unguided 7-tab console will murder your pitch video. The page must be an interactive <strong>proof-of-exploit command center</strong>.
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <span>The First Principles Thinker (The Problem Rebuilder)</span>
+          <span style="color: var(--accent); font-size: 0.8rem;">View Position &rarr;</span>
+        </summary>
+        <div class="advisor-content">
+          The job-to-be-done for a hackathon frontend is a <strong>credibility engine</strong>. Turn invisible cryptographic guarantees into visceral, undeniable proof within 180 seconds. The authentic final product is an <strong>immutable cryptographic verification console</strong>—the Bloomberg Terminal of cryptographic integrity.
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <span>The Expansionist (Flagged for Scope Creep)</span>
+          <span style="color: var(--danger); font-size: 0.8rem;">Rejected for Deadline &rarr;</span>
+        </summary>
+        <div class="advisor-content">
+          Advocated for positioning BidTrace as a $13T sovereign institutional command terminal with live macroeconomic telemetry and programmable milestone escrow liquidity. Unanimously flagged by all 5 peer reviewers as lethal scope creep for a hackathon deadline.
+        </div>
+      </details>
+    </section>
+
+    <footer>
+      Generated by LLM Council for BidTrace 3.0 • Colosseum Solana Hackathon Evaluation • Program ID: <code>x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ</code>
+    </footer>
+  </div>
+</body>
+</html>
