@@ -69,6 +69,14 @@ SOLANA_RPC_URL = os.environ.get("SOLANA_RPC_URL", "https://api.devnet.solana.com
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), "public")
 
 
+def slot_to_clock(slot: int) -> str:
+    base_min = 14 * 60
+    tot_min = base_min + (int(slot) - 1000)
+    h = (tot_min // 60) % 24
+    m = tot_min % 60
+    return f"{h:02d}:{m:02d}:00 UTC"
+
+
 class ServerState:
     def __init__(self):
         self.reset()
@@ -143,6 +151,7 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({
                 "status": "ok",
                 "current_slot": state.ledger.current_slot,
+                "consensus_clock": slot_to_clock(state.ledger.current_slot),
                 "fee_payer": state.relayer.fee_payer_wallet,
                 "tender_pda": state.tender_pda,
                 "active_tender": tender,
@@ -566,6 +575,7 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json({
                     "status": "ok",
                     "current_slot": state.ledger.current_slot,
+                    "consensus_clock": slot_to_clock(state.ledger.current_slot),
                     "tender_status": tender["status"],
                     "total_committed": tender["total_committed"]
                 })
@@ -849,7 +859,7 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
             if current_slot <= deadline_slot:
                 self.send_json({
                     "status": "warning",
-                    "message": f"Consensus clock is at Slot {current_slot} <= Deadline {deadline_slot}. Advance phase first!"
+                    "message": f"Consensus clock is before deadline ({slot_to_clock(current_slot)} <= {slot_to_clock(deadline_slot)}). Advance clock past deadline first!"
                 })
                 return
 
@@ -868,7 +878,7 @@ class BidTraceHandler(http.server.SimpleHTTPRequestHandler):
                     "status": "defended",
                     "error_type": "BidTraceError::SubmissionDeadlineExceeded",
                     "raw_error": str(e),
-                    "slot_info": f"Current Slot {current_slot} > Deadline {deadline_slot}"
+                    "slot_info": f"Consensus Clock {slot_to_clock(current_slot)} > Deadline {slot_to_clock(deadline_slot)} (Slot {current_slot} > {deadline_slot})"
                 })
             return
 

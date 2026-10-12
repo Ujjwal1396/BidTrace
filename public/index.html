@@ -81,13 +81,13 @@
             <span id="attack-modal-error" class="text-rose-400 font-bold">BidTraceError::DeadlineExceeded (0x1773)</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-slate-400">Slot Status:</span>
-            <span id="attack-modal-slots" class="text-amber-300 font-bold">Current Slot 1060 &gt; Deadline Slot 1050</span>
+            <span class="text-slate-400">Consensus Clock Status:</span>
+            <span id="attack-modal-slots" class="text-amber-300 font-bold">15:00:00 UTC &gt; Deadline 14:50:00 UTC (+10m Late)</span>
           </div>
         </div>
 
         <p id="attack-modal-explanation" class="text-xs text-slate-300 leading-relaxed">
-          Adversary attempted to submit a bid after the consensus deadline slot. The Solana smart contract rejected the instruction; historical consensus slots cannot be overridden by administrative keys.
+          Adversary attempted to submit a bid after the 14:50:00 UTC deadline. The Solana smart contract rejected the instruction on-chain; historical consensus timestamps cannot be overridden by administrative keys.
         </p>
 
         <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
@@ -128,18 +128,23 @@
           <div class="text-xs font-bold text-emerald-400 mono">Active (Zero Fiat Gas)</div>
         </div>
 
-        <!-- Consensus Slot Clock -->
+        <!-- Real Consensus Clock (PoH Anchored) -->
         <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-right">
-          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Consensus Slot</div>
-          <div id="top-slot-display" class="text-sm font-bold text-cyan-400 mono">Slot 1000</div>
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Consensus Clock (UTC)</div>
+          <div id="top-clock-container" class="text-sm font-bold text-cyan-400 mono flex items-center justify-end gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 pulse-badge"></span>
+            <span id="top-slot-display">14:00:00 UTC</span>
+          </div>
+          <div id="top-slot-subtext" class="text-[9px] text-slate-500 mono">Solana PoH Slot 1,000</div>
         </div>
 
         <!-- Tender Lock Status Badge -->
         <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-right">
           <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tender Lock</div>
           <div id="top-lock-display" class="text-xs font-bold text-emerald-400 mono flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>Open (Slot &le; 1050)</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>Open (Deadline: 14:50 UTC)</span>
           </div>
+          <div id="top-lock-subtext" class="text-[9px] text-slate-500 mono">Submissions Intake Open</div>
         </div>
 
         <!-- Web3 Wallet Actions -->
@@ -297,7 +302,7 @@
             <span id="hud-step-3-status" class="step-status text-slate-500">Pending</span>
           </div>
           <div class="text-xs font-bold text-amber-300 truncate">🔒 3. Lock Tender</div>
-          <div class="text-[10px] text-slate-400 truncate">Slot 1060 + Block Late Bids</div>
+          <div class="text-[10px] text-slate-400 truncate">Clock Past 14:50 UTC + Defend</div>
         </button>
 
         <button id="hud-step-4" onclick="runStoryboardStep(4)" class="hud-step p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-700 text-left transition cursor-pointer">
@@ -484,14 +489,18 @@
                 <span class="text-slate-400">Submissions Intake:</span>
                 <span id="buyer-committed-count" class="mono font-bold text-white">0 Committed</span>
               </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Submission Deadline:</span>
+                <span id="buyer-deadline-display" class="mono font-bold text-amber-300 text-[11px]">14:50:00 UTC</span>
+              </div>
             </div>
             <div class="pt-2 border-t border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-[11px]">
                 <span class="text-slate-400 font-semibold">Submissions Lock:</span>
-                <span id="buyer-lock-indicator" class="font-mono font-bold text-emerald-400">🟢 OPEN (Slot &le; 1050)</span>
+                <span id="buyer-lock-indicator" class="font-mono font-bold text-emerald-400">🟢 OPEN (Deadline: 14:50:00 UTC)</span>
               </div>
               <button id="btn-lock-tender" onclick="apiLockTender()" class="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow">
-                <span>🔒 Advance Slot to 1060 & Lock Tender</span>
+                <span>🔒 Advance Clock to 15:00 UTC & Lock Tender</span>
               </button>
               <div class="flex items-center justify-between pt-1">
                 <span class="text-[10px] text-slate-500">Lifecycle Phase:</span>
@@ -640,7 +649,7 @@
               <span class="font-bold text-cyan-300">Air-Gapped Receipt</span>
               <span id="bidder-receipt-count" class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 mono">0 Saved</span>
             </div>
-            <p class="text-[11px] text-slate-400">Download your portable <span class="mono text-slate-200">bidder_receipt.json</span> proving submission before deadline slot.</p>
+            <p class="text-[11px] text-slate-400">Download your portable <span class="mono text-slate-200">bidder_receipt.json</span> proving submission before the 14:50:00 UTC deadline.</p>
             <button onclick="downloadLatestReceipt()" id="btn-download-receipt" class="w-full py-2 px-3 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-lg font-semibold text-xs transition cursor-pointer">
               Download Receipt (JSON)
             </button>
@@ -893,7 +902,7 @@
               <span id="inv-2" class="mono text-slate-500">[PENDING]</span>
             </div>
             <div class="p-2.5 bg-black/40 border border-slate-800 rounded-lg flex items-center justify-between">
-              <span>3. Two-Envelope Temporal Slot Adherence & Envelope A</span>
+              <span>3. Real Clock Temporal Adherence & Sealed Envelope A</span>
               <span id="inv-3" class="mono text-slate-500">[PENDING]</span>
             </div>
             <div class="p-2.5 bg-black/40 border border-slate-800 rounded-lg flex items-center justify-between">
@@ -994,7 +1003,7 @@
             <span class="font-bold text-rose-300">Attack 1: Inject Late Bid Post-Deadline</span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono">Temporal Defense</span>
           </div>
-          <p class="text-[11px] text-slate-400">Adversary bribes backend clerk to backdate a bid submitted after the submission deadline slot.</p>
+          <p class="text-[11px] text-slate-400">Adversary bribes backend clerk to backdate a bid submitted after the 14:50:00 UTC deadline.</p>
           <button onclick="apiAttackLateBid()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition cursor-pointer">
             Simulate Late Bid Attack
           </button>
@@ -1278,6 +1287,27 @@
     }
 
     // -------------------------------------------------------------------------
+    // REAL CLOCK HELPERS (Map Solana consensus slot to institutional UTC clock)
+    // Baseline: Slot 1000 = 14:00:00 UTC (Tender issuance)
+    // 1 slot = 1 minute simulated procurement progression
+    // Slot 1000 => 14:00:00 UTC
+    // Slot 1050 => 14:50:00 UTC (Official Tender Submission Deadline)
+    // Slot 1060 => 15:00:00 UTC (10 mins post-deadline: Tender Lock / Defended)
+    // Slot 1080 => 15:20:00 UTC (Blinded Evaluation Finalized)
+    // Slot 1110 => 15:50:00 UTC (QCBS Award & Settlement)
+    // -------------------------------------------------------------------------
+    function slotToClock(slot) {
+      const s = Number(slot) || 1000;
+      const baseMinutes = 14 * 60; // 14:00:00 UTC
+      const totalMinutes = baseMinutes + (s - 1000);
+      const h = Math.floor(totalMinutes / 60) % 24;
+      const m = totalMinutes % 60;
+      const hh = String(h).padStart(2, '0');
+      const mm = String(m).padStart(2, '0');
+      return `${hh}:${mm}:00 UTC`;
+    }
+
+    // -------------------------------------------------------------------------
     // API ACTIONS
     // -------------------------------------------------------------------------
     async function refreshStatus() {
@@ -1285,20 +1315,35 @@
         const res = await fetch("/api/status");
         const data = await res.json();
         
-        document.getElementById("top-slot-display").innerText = `Slot ${data.current_slot.toLocaleString()}`;
+        const currentSlot = data.current_slot || 1000;
+        const deadlineSlot = (data.active_tender && data.active_tender.submission_deadline_slot) || 1050;
+        const currentTimeStr = data.consensus_clock || slotToClock(currentSlot);
+        const deadlineTimeStr = slotToClock(deadlineSlot);
+
+        const slotDisplay = document.getElementById("top-slot-display");
+        if (slotDisplay) slotDisplay.innerText = currentTimeStr;
+        const slotSub = document.getElementById("top-slot-subtext");
+        if (slotSub) slotSub.innerText = `Solana PoH Slot ${currentSlot.toLocaleString()}`;
+
         currentTenderPda = data.tender_pda;
         currentTenderData = data.active_tender;
 
         if (data.active_tender) {
           document.getElementById("buyer-tender-pda").innerText = `${data.tender_pda.slice(0, 8)}...${data.tender_pda.slice(-8)}`;
           
-          const isLocked = data.current_slot > (data.active_tender.submission_deadline_slot || 1050) || 
+          const isLocked = currentSlot > deadlineSlot || 
                            ["Locked", "AdministrativeReview", "TechnicalEvaluation", "FinancialEvaluation", "Awarded"].includes(data.active_tender.status);
           
           const statusBadge = document.getElementById("buyer-status-badge");
           const lockIndicator = document.getElementById("buyer-lock-indicator");
           const topLock = document.getElementById("top-lock-display");
+          const topLockSub = document.getElementById("top-lock-subtext");
           const btnLock = document.getElementById("btn-lock-tender");
+          const deadlineDisplay = document.getElementById("buyer-deadline-display");
+
+          if (deadlineDisplay) {
+            deadlineDisplay.innerText = deadlineTimeStr;
+          }
 
           if (isLocked) {
             if (statusBadge) {
@@ -1306,10 +1351,13 @@
               statusBadge.className = "text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold";
             }
             if (lockIndicator) {
-              lockIndicator.innerHTML = `<span class="text-amber-300 font-bold">🔒 LOCKED (Slot ${data.current_slot} &gt; 1050)</span>`;
+              lockIndicator.innerHTML = `<span class="text-amber-300 font-bold">🔒 LOCKED (Clock: ${currentTimeStr} &gt; Deadline: ${deadlineTimeStr})</span>`;
             }
             if (topLock) {
-              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 pulse-badge"></span> <span class="text-amber-300 font-bold">🔒 LOCKED (Slot &gt; 1050)</span>`;
+              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 pulse-badge"></span> <span class="text-amber-300 font-bold">🔒 LOCKED (Closed at ${deadlineTimeStr})</span>`;
+            }
+            if (topLockSub) {
+              topLockSub.innerText = `Submissions Frozen (${currentTimeStr} > ${deadlineTimeStr})`;
             }
             if (btnLock) {
               btnLock.innerHTML = `<span>🔒 Tender Locked &bull; Advance Phase &rarr;</span>`;
@@ -1321,13 +1369,16 @@
               statusBadge.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold";
             }
             if (lockIndicator) {
-              lockIndicator.innerHTML = `<span class="text-emerald-400 font-bold">🟢 OPEN (Slot &le; 1050)</span>`;
+              lockIndicator.innerHTML = `<span class="text-emerald-400 font-bold">🟢 OPEN (Deadline: ${deadlineTimeStr})</span>`;
             }
             if (topLock) {
-              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span class="text-emerald-400 font-bold">Open (Slot &le; 1050)</span>`;
+              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span class="text-emerald-400 font-bold">Open (Deadline: ${deadlineTimeStr})</span>`;
+            }
+            if (topLockSub) {
+              topLockSub.innerText = `Submissions Intake Open`;
             }
             if (btnLock) {
-              btnLock.innerHTML = `<span>🔒 Advance Slot to 1060 & Lock Tender</span>`;
+              btnLock.innerHTML = `<span>🔒 Advance Clock to 15:00 UTC & Lock Tender</span>`;
               btnLock.onclick = apiLockTender;
             }
           }
@@ -1339,6 +1390,8 @@
         } else {
           const topLock = document.getElementById("top-lock-display");
           if (topLock) topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500"></span> <span class="text-slate-400">Ready</span>`;
+          const topLockSub = document.getElementById("top-lock-subtext");
+          if (topLockSub) topLockSub.innerText = `Ready to Initialize`;
         }
 
         if (data.active_committee && data.active_committee.evaluators) {
@@ -1806,9 +1859,9 @@
       logMessage("Committed 3 Dual-Envelope Bids with TradFi Surety, MT760 BG, and BSD.", "success");
       await new Promise(r => setTimeout(r, 600));
 
-      // Stage 3: Lock Tender (Consensus slot 1060 > 1050 deadline)
+      // Stage 3: Lock Tender (Consensus clock 15:00:00 UTC > 14:50:00 UTC deadline)
       document.getElementById("step-3-pill").className = "p-2 rounded bg-amber-500/20 border border-amber-500 text-amber-300 text-center font-mono font-bold";
-      logMessage("Tender locked on Solana Anchor runtime! Slot advanced past 1050; submissions frozen.", "warning");
+      logMessage("Tender locked on Solana Anchor runtime! Real clock advanced to 15:00:00 UTC (past 14:50:00 UTC deadline); submissions frozen.", "warning");
       await fetch("/api/tender/advance_phase", { method: "POST" });
       await fetch("/api/tender/advance_phase", { method: "POST" });
       await refreshStatus();
@@ -1964,14 +2017,14 @@
       else if (step === 3) {
         // STEP 3: DEMO & ATTACKS - ADVERSARIAL INTERCEPTION CLIMAX
         switchPortal("demo");
-        logMessage(">>> STORYBOARD STEP 3: Locking Tender at Slot 1060 & Defending on Solana...", "warning");
+        logMessage(">>> STORYBOARD STEP 3: Advancing Consensus Clock to 15:00:00 UTC (Past 14:50:00 UTC Deadline) & Defending on Solana...", "warning");
         
-        // Advance slot past deadline
+        // Advance clock past deadline
         await fetch("/api/tender/advance_phase", { method: "POST" });
         await refreshStatus();
 
         // Simulate Attack 1: Late Bid Injection
-        logMessage("Adversary attempting Attack 1: Injecting late bid after submission slot...", "error");
+        logMessage("Adversary attempting Attack 1: Injecting late bid at 15:00:00 UTC (after 14:50:00 UTC deadline)...", "error");
         const attackRes = await fetch("/api/attack/late_bid", { method: "POST" });
         const attackData = await attackRes.json();
         
@@ -1979,8 +2032,8 @@
         showAttackRejectionModal(
           "Attack 1 Intercepted: Late Bidder Blocked",
           "BidTraceError::DeadlineExceeded (0x1773)",
-          "Current Consensus Slot 1060 > Tender Deadline Slot 1050",
-          "A malicious actor attempted to inject a late bid after the deadline window closed. Solana Anchor's consensus clock rejected the instruction on-chain. System administrator keys cannot alter historical slot state."
+          "Consensus Clock 15:00:00 UTC > Tender Deadline 14:50:00 UTC (+10m Late)",
+          "A malicious actor attempted to inject a late bid after the 14:50:00 UTC deadline window closed. Solana Anchor's consensus clock rejected the instruction on-chain. System administrator keys cannot alter historical consensus clock timestamps."
         );
         setStoryboardStepUI(3, "Defended ✓");
       }
@@ -2047,15 +2100,15 @@
 
     // Attacks
     async function apiAttackLateBid() {
-      logMessage("Adversary executing Attack 1: Attempting to submit bid after consensus deadline slot...", "warning");
+      logMessage("Adversary executing Attack 1: Attempting to submit bid at 15:00:00 UTC (after 14:50:00 UTC deadline)...", "warning");
       const res = await fetch("/api/attack/late_bid", { method: "POST" });
       const data = await res.json();
       logMessage(`>>> DEFENSE RESULT: ${data.status.toUpperCase()}! ${data.error_type || data.message}`, "error");
       showAttackRejectionModal(
         "Attack 1 Intercepted: Late Bidder Injected",
         "BidTraceError::DeadlineExceeded (0x1773)",
-        "Current Consensus Slot 1060 > Deadline Slot 1050",
-        "A corrupt administrator attempted to insert Bidder D five minutes after the submission deadline. Solana Anchor runtime rejected the transaction on-chain: consensus clock slot boundary is immutable."
+        "Consensus Clock 15:00:00 UTC > Tender Deadline 14:50:00 UTC (+10m Late)",
+        "A corrupt administrator attempted to insert Bidder D ten minutes after the 14:50:00 UTC submission deadline. Solana Anchor runtime rejected the transaction on-chain: consensus clock boundary is immutable."
       );
     }
 
@@ -2116,11 +2169,12 @@
 
     async function apiLockTender() {
       try {
-        logMessage("🔒 Freezing tender: Advancing consensus slot past deadline (Slot 1060 > 1050)...", "warning");
+        logMessage("🔒 Freezing tender: Advancing real consensus clock past deadline (15:00:00 UTC > 14:50:00 UTC)...", "warning");
         const res = await fetch("/api/lock-tender", { method: "POST" });
         const data = await res.json();
         if (data.status === "ok") {
-          logMessage(`🔒 TENDER LOCKED ON SOLANA: Status transitioned to ${data.tender_status} (Slot ${data.current_slot}). Submissions frozen.`, "success");
+          const newClock = slotToClock(data.current_slot);
+          logMessage(`🔒 TENDER LOCKED ON SOLANA: Consensus clock advanced to ${newClock}. Status transitioned to ${data.tender_status}. Submissions frozen.`, "success");
         } else {
           logMessage(`Tender lock notification: ${data.message || JSON.stringify(data)}`, "normal");
         }
@@ -2134,7 +2188,8 @@
       try {
         const res = await fetch("/api/tender/advance_phase", { method: "POST" });
         const data = await res.json();
-        logMessage(`Consensus clock advanced. Tender status: ${data.tender_status} (Slot ${data.current_slot})`, "normal");
+        const newClock = slotToClock(data.current_slot);
+        logMessage(`Consensus clock advanced to ${newClock} (PoH Slot ${data.current_slot}). Tender status: ${data.tender_status}`, "normal");
         await refreshStatus();
       } catch (err) {
         console.error(err);
