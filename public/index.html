@@ -134,6 +134,14 @@
           <div id="top-slot-display" class="text-sm font-bold text-cyan-400 mono">Slot 1000</div>
         </div>
 
+        <!-- Tender Lock Status Badge -->
+        <div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-right">
+          <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tender Lock</div>
+          <div id="top-lock-display" class="text-xs font-bold text-emerald-400 mono flex items-center justify-end gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>Open (Slot &le; 1050)</span>
+          </div>
+        </div>
+
         <!-- Web3 Wallet Actions -->
         <div id="wallet-section" class="flex flex-wrap items-center gap-2">
           <button id="btn-connect-phantom" onclick="connectPhantomWallet()" class="phantom-btn text-white px-3 py-1.5 rounded-lg font-semibold text-xs shadow-md shadow-purple-900/30 transition flex items-center gap-1.5 cursor-pointer">
@@ -288,8 +296,8 @@
             <span class="mono">STEP 3</span>
             <span id="hud-step-3-status" class="step-status text-slate-500">Pending</span>
           </div>
-          <div class="text-xs font-bold text-rose-300 truncate">🛑 3. Intercept Attacks</div>
-          <div class="text-[10px] text-slate-400 truncate">Solana Clock Block</div>
+          <div class="text-xs font-bold text-amber-300 truncate">🔒 3. Lock Tender</div>
+          <div class="text-[10px] text-slate-400 truncate">Slot 1060 + Block Late Bids</div>
         </button>
 
         <button id="hud-step-4" onclick="runStoryboardStep(4)" class="hud-step p-2.5 rounded-lg bg-slate-950 border border-slate-800 hover:border-slate-700 text-left transition cursor-pointer">
@@ -477,11 +485,20 @@
                 <span id="buyer-committed-count" class="mono font-bold text-white">0 Committed</span>
               </div>
             </div>
-            <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
-              <span class="text-[11px] text-slate-400">Advance Phase:</span>
-              <button onclick="advanceTenderPhase()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-xs transition cursor-pointer border border-slate-700">
-                Advance &rarr;
+            <div class="pt-2 border-t border-slate-800 space-y-2">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-slate-400 font-semibold">Submissions Lock:</span>
+                <span id="buyer-lock-indicator" class="font-mono font-bold text-emerald-400">🟢 OPEN (Slot &le; 1050)</span>
+              </div>
+              <button id="btn-lock-tender" onclick="apiLockTender()" class="w-full py-2 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow">
+                <span>🔒 Advance Slot to 1060 & Lock Tender</span>
               </button>
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[10px] text-slate-500">Lifecycle Phase:</span>
+                <button onclick="advanceTenderPhase()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded text-[11px] transition cursor-pointer border border-slate-700">
+                  Advance Phase &rarr;
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -936,10 +953,35 @@
         <!-- 5-Stage Stepper -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2 text-[11px]">
           <div id="step-1-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">1. Init Tender</div>
-          <div id="step-2-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">2. Dual Bids</div>
-          <div id="step-3-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">3. Blinded Scores</div>
-          <div id="step-4-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">4. QCBS Award</div>
-          <div id="step-5-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">5. Dossier Audit</div>
+          <div id="step-2-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">2. Sealed Bids</div>
+          <div id="step-3-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">3. 🔒 Tender Locked</div>
+          <div id="step-4-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">4. Blinded Scores</div>
+          <div id="step-5-pill" class="p-2 rounded bg-slate-950 border border-slate-800 text-slate-400 text-center font-mono">5. QCBS Award & Audit</div>
+        </div>
+
+        <!-- Manual Protocol Actions (Dedicated Tender Lock Control) -->
+        <div class="pt-3 border-t border-slate-800/80">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2 font-semibold">
+            <span>MANUAL PROTOCOL ACTIONS</span>
+            <span class="text-slate-500">Run individual steps or trigger on-chain Lock</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <button onclick="runStoryboardStep(1)" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-lg font-semibold transition cursor-pointer text-center">
+              1. Setup Tender
+            </button>
+            <button onclick="runStoryboardStep(2)" class="p-2 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 rounded-lg font-semibold transition cursor-pointer text-center">
+              2. Sealed Bids
+            </button>
+            <button onclick="runStoryboardStep(3)" class="p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 rounded-lg font-bold transition cursor-pointer text-center flex items-center justify-center gap-1 shadow">
+              <span>🔒 3. Lock Tender</span>
+            </button>
+            <button onclick="runStoryboardStep(4)" class="p-2 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/30 rounded-lg font-semibold transition cursor-pointer text-center">
+              4. Blinded Scores
+            </button>
+            <button onclick="runStoryboardStep(5)" class="p-2 bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/30 rounded-lg font-semibold transition cursor-pointer text-center">
+              5. Award & Audit
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1249,12 +1291,54 @@
 
         if (data.active_tender) {
           document.getElementById("buyer-tender-pda").innerText = `${data.tender_pda.slice(0, 8)}...${data.tender_pda.slice(-8)}`;
-          document.getElementById("buyer-status-badge").innerText = data.active_tender.status;
-          document.getElementById("buyer-status-badge").className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono";
+          
+          const isLocked = data.current_slot > (data.active_tender.submission_deadline_slot || 1050) || 
+                           ["Locked", "AdministrativeReview", "TechnicalEvaluation", "FinancialEvaluation", "Awarded"].includes(data.active_tender.status);
+          
+          const statusBadge = document.getElementById("buyer-status-badge");
+          const lockIndicator = document.getElementById("buyer-lock-indicator");
+          const topLock = document.getElementById("top-lock-display");
+          const btnLock = document.getElementById("btn-lock-tender");
+
+          if (isLocked) {
+            if (statusBadge) {
+              statusBadge.innerText = `🔒 LOCKED (${data.active_tender.status})`;
+              statusBadge.className = "text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-bold";
+            }
+            if (lockIndicator) {
+              lockIndicator.innerHTML = `<span class="text-amber-300 font-bold">🔒 LOCKED (Slot ${data.current_slot} &gt; 1050)</span>`;
+            }
+            if (topLock) {
+              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 pulse-badge"></span> <span class="text-amber-300 font-bold">🔒 LOCKED (Slot &gt; 1050)</span>`;
+            }
+            if (btnLock) {
+              btnLock.innerHTML = `<span>🔒 Tender Locked &bull; Advance Phase &rarr;</span>`;
+              btnLock.onclick = advanceTenderPhase;
+            }
+          } else {
+            if (statusBadge) {
+              statusBadge.innerText = `🟢 OPEN (${data.active_tender.status})`;
+              statusBadge.className = "text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold";
+            }
+            if (lockIndicator) {
+              lockIndicator.innerHTML = `<span class="text-emerald-400 font-bold">🟢 OPEN (Slot &le; 1050)</span>`;
+            }
+            if (topLock) {
+              topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span class="text-emerald-400 font-bold">Open (Slot &le; 1050)</span>`;
+            }
+            if (btnLock) {
+              btnLock.innerHTML = `<span>🔒 Advance Slot to 1060 & Lock Tender</span>`;
+              btnLock.onclick = apiLockTender;
+            }
+          }
+
           document.getElementById("buyer-committed-count").innerText = `${data.active_tender.total_committed} Committed`;
           if (data.active_tender.ocds_notice_hash) {
             document.getElementById("buyer-ocds-hash").innerText = `${data.active_tender.ocds_notice_hash.slice(0, 12)}...`;
           }
+        } else {
+          const topLock = document.getElementById("top-lock-display");
+          if (topLock) topLock.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500"></span> <span class="text-slate-400">Ready</span>`;
         }
 
         if (data.active_committee && data.active_committee.evaluators) {
@@ -1722,9 +1806,12 @@
       logMessage("Committed 3 Dual-Envelope Bids with TradFi Surety, MT760 BG, and BSD.", "success");
       await new Promise(r => setTimeout(r, 600));
 
-      // Advance Phase to AdministrativeReview -> TechnicalEvaluation
+      // Stage 3: Lock Tender (Consensus slot 1060 > 1050 deadline)
+      document.getElementById("step-3-pill").className = "p-2 rounded bg-amber-500/20 border border-amber-500 text-amber-300 text-center font-mono font-bold";
+      logMessage("Tender locked on Solana Anchor runtime! Slot advanced past 1050; submissions frozen.", "warning");
       await fetch("/api/tender/advance_phase", { method: "POST" });
       await fetch("/api/tender/advance_phase", { method: "POST" });
+      await refreshStatus();
 
       // Unseal Tech Bids
       const st = await (await fetch("/api/status")).json();
@@ -1784,7 +1871,7 @@
         const nextLabels = {
           0: "Next: 1. Setup Tender",
           1: "Next: 2. Sealed Bids",
-          2: "Next: 3. Intercept Attacks",
+          2: "Next: 3. 🔒 Lock Tender & Defend",
           3: "Next: 4. Blinded Scoring",
           4: "Next: 5. Award & Audit",
           5: "Completed ✓ (Re-run)"
@@ -1877,7 +1964,7 @@
       else if (step === 3) {
         // STEP 3: DEMO & ATTACKS - ADVERSARIAL INTERCEPTION CLIMAX
         switchPortal("demo");
-        logMessage(">>> STORYBOARD STEP 3: Advancing Consensus Slot & Intercepting Adversarial Attacks...", "warning");
+        logMessage(">>> STORYBOARD STEP 3: Locking Tender at Slot 1060 & Defending on Solana...", "warning");
         
         // Advance slot past deadline
         await fetch("/api/tender/advance_phase", { method: "POST" });
@@ -2025,6 +2112,22 @@
         "Contractor Tech Score: 61.00% < Required 75.00% Cutoff",
         "Buyer attempted to decrypt Envelope B (financial pricing and unit BoQ) for a contractor who failed the technical stage. The smart contract permanently barred key unsealing, safeguarding commercial trade secrets."
       );
+    }
+
+    async function apiLockTender() {
+      try {
+        logMessage("🔒 Freezing tender: Advancing consensus slot past deadline (Slot 1060 > 1050)...", "warning");
+        const res = await fetch("/api/lock-tender", { method: "POST" });
+        const data = await res.json();
+        if (data.status === "ok") {
+          logMessage(`🔒 TENDER LOCKED ON SOLANA: Status transitioned to ${data.tender_status} (Slot ${data.current_slot}). Submissions frozen.`, "success");
+        } else {
+          logMessage(`Tender lock notification: ${data.message || JSON.stringify(data)}`, "normal");
+        }
+        await refreshStatus();
+      } catch (err) {
+        logMessage(`Error locking tender: ${err.message}`, "error");
+      }
     }
 
     async function advanceTenderPhase() {
