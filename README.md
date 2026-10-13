@@ -1,4 +1,4 @@
-# BidTrace: No More Bid Rigging
+# BidTrace: Goodbye Bid Rigging
 > **Cryptographic sealed bidding for public infrastructure contracts powered by Solana.**
 
 [![Tests](https://img.shields.io/badge/python--tests-32%20passed-brightgreen.svg)]()

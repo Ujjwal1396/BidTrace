@@ -3,38 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BidTrace — 2-Minute Executive Pitch Deck (Pitchdeck 101)</title>
+  <title>BidTrace — 2-Minute Executive Pitch Deck | Active Presentation</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    body { background: #0a0f1d; color: #f1f5f9; overflow: hidden; }
+    body { background: #070b16; color: #f1f5f9; overflow: hidden; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .slide { display: none; opacity: 0; transition: opacity 0.2s ease-in-out; }
-    .slide.active { display: flex; opacity: 1; }
-    .card-glow { box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.15); }
-    .pulse-badge { animation: pulse-glow 2s infinite ease-in-out; }
-    @keyframes pulse-glow { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+    .slide { display: none; opacity: 0; transform: scale(0.985); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+    .slide.active { display: flex; opacity: 1; transform: scale(1); }
+    .glow-cyan { box-shadow: 0 0 40px -10px rgba(6, 182, 212, 0.25); }
+    .glow-rose { box-shadow: 0 0 40px -10px rgba(244, 63, 94, 0.25); }
+    .glow-purple { box-shadow: 0 0 40px -10px rgba(168, 85, 247, 0.25); }
+    .pulse-glow { animation: pulse-anim 2s infinite ease-in-out; }
+    @keyframes pulse-anim { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.65; transform: scale(1.04); } }
+    .gradient-border {
+      background: linear-gradient(#0c1326, #0c1326) padding-box,
+                  linear-gradient(135deg, rgba(6,182,212,0.4), rgba(168,85,247,0.3)) border-box;
+      border: 1px solid transparent;
+    }
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
 
   <!-- TOP HUD BAR: Slide Index, 2-Min Timer & Controls -->
-  <header class="h-14 border-b border-slate-800 bg-slate-950/80 backdrop-blur px-6 flex items-center justify-between z-50">
+  <header class="h-14 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur px-6 flex items-center justify-between z-50">
     <div class="flex items-center gap-3">
       <img src="/logo-mark.png" alt="BidTrace" class="w-7 h-7 object-contain">
-      <span class="font-extrabold text-white text-sm tracking-tight">Bid<span class="text-cyan-400">Trace</span></span>
-      <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 font-semibold">Pitchdeck 101 Aligned</span>
+      <div class="flex items-baseline gap-1.5">
+        <span class="font-extrabold text-white text-base tracking-tight">Bid<span class="text-cyan-400">Trace</span></span>
+        <span class="text-xs text-slate-400 font-medium hidden sm:inline">— Goodbye Bid Rigging</span>
+      </div>
+      <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 font-semibold ml-2">2-Min Executive Deck</span>
     </div>
 
-    <!-- Live 2-Min Timer / Stopwatch -->
-    <div class="flex items-center gap-4">
+    <!-- Active Controls & Live 2-Min Timer -->
+    <div class="flex items-center gap-3 md:gap-5">
+      <!-- Live Stopwatch -->
       <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1 rounded-lg">
-        <span class="text-[11px] text-slate-400 uppercase font-mono">Rehearsal:</span>
+        <span class="text-[10px] text-slate-400 uppercase font-mono hidden sm:inline">Pacing:</span>
         <span id="timer-display" class="font-mono font-bold text-sm text-cyan-400">00:00</span>
         <span class="text-[10px] text-slate-500">/ 02:00</span>
-        <button id="btn-timer-toggle" onclick="toggleTimer()" class="ml-1 text-xs text-slate-400 hover:text-white cursor-pointer" title="Start/Pause Timer">▶</button>
-        <button onclick="resetTimer()" class="text-xs text-slate-400 hover:text-white cursor-pointer" title="Reset Timer">↺</button>
+        <button id="btn-timer-toggle" onclick="toggleTimer()" class="ml-1 text-xs text-slate-300 hover:text-white px-1 cursor-pointer" title="Start/Pause Timer">▶</button>
+        <button onclick="resetTimer()" class="text-xs text-slate-400 hover:text-white px-1 cursor-pointer" title="Reset Timer">↺</button>
       </div>
 
       <!-- Slide Indicator -->
@@ -44,347 +55,610 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-2">
-        <button onclick="toggleNotes()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 rounded border border-slate-700 flex items-center gap-1 cursor-pointer">
-          <span>🎙️ Speaker Notes (S)</span>
+        <button onclick="toggleNotes()" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-xs text-slate-200 rounded border border-slate-700/80 flex items-center gap-1 cursor-pointer" title="Toggle Notes (Hotkey: S)">
+          <span>🎙️ Script (S)</span>
         </button>
-        <a href="/BidTrace_Pitch_Deck_2Min.pptx" download class="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded shadow flex items-center gap-1 cursor-pointer">
-          <span>📥 Download PPTX</span>
+        <button onclick="toggleFullscreen()" class="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-xs text-slate-200 rounded border border-slate-700/80 hidden md:inline cursor-pointer" title="Fullscreen (Hotkey: F)">
+          ⛶
+        </button>
+        <a href="/BidTrace_Speaker_Notes_2Min.docx" download class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs rounded border border-slate-700 flex items-center gap-1 cursor-pointer" title="Download Word DOCX Notes">
+          <span>📄 DOCX</span>
+        </a>
+        <a href="/BidTrace_Pitch_Deck_2Min.pptx" download class="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded shadow flex items-center gap-1 cursor-pointer" title="Download PowerPoint Deck">
+          <span>📥 PPTX</span>
         </a>
       </div>
     </div>
   </header>
 
+  <!-- PROGRESS BAR -->
+  <div class="w-full bg-slate-900 h-1 relative">
+    <div id="slide-progress-bar" class="bg-gradient-to-r from-cyan-500 via-purple-500 to-emerald-400 h-1 transition-all duration-300 w-[14.28%]"></div>
+  </div>
+
   <!-- SLIDES VIEWPORT CONTAINER -->
-  <main class="flex-1 relative flex items-center justify-center p-6 md:p-12 overflow-hidden">
+  <main class="flex-1 relative flex items-center justify-center p-4 md:p-8 overflow-y-auto">
 
     <!-- ========================================================================= -->
-    <!-- SLIDE 1: COVER SLIDE (Winning One-Liner, <40 words)                       -->
+    <!-- SLIDE 1: COVER SLIDE                                                      -->
     <!-- ========================================================================= -->
-    <div class="slide active flex-col justify-center max-w-5xl w-full space-y-8" data-time="0:00 - 0:15" data-words="24 Words" data-script="Judges, every year $13 trillion is spent on public infrastructure, yet bid rigging and database tampering steal up to 25% of that capital. BidTrace eliminates bid rigging with cryptographic sealed bidding on Solana, turning administrative trust into mathematical certainty.">
+    <div class="slide active flex-col justify-center max-w-5xl w-full space-y-8" 
+         data-time="0:00 - 0:06" 
+         data-words="14 Words" 
+         data-script="Good morning, I’m [Your Name]. This is BidTrace: Goodbye Bid Rigging.">
+      
       <div class="space-y-4">
+        <!-- Event Badge -->
         <div class="flex items-center gap-3">
           <span class="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-badge"></span> Colosseum Crypto World's Fair 2026
+            <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-glow"></span> Sovereign Public Procurement Protocol
           </span>
           <span class="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/30 text-xs font-mono font-bold">
-            Anchor v0.30.1 Devnet
+            Anchor Devnet Live
           </span>
         </div>
 
-        <div class="flex items-center gap-5">
-          <img src="/logo-mark.png" alt="BidTrace" class="w-20 h-20 object-contain drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+        <!-- Name & Core Hook -->
+        <div class="flex items-center gap-6 pt-2">
+          <img src="/logo-mark.png" alt="BidTrace" class="w-24 h-24 object-contain drop-shadow-[0_0_35px_rgba(6,182,212,0.4)]">
           <div>
-            <h1 class="text-5xl md:text-6xl font-black text-white tracking-tight">
-              Bid<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-300">Trace</span>
+            <h1 class="text-6xl md:text-7xl font-black text-white tracking-tight">
+              Bid<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">Trace</span>
             </h1>
-            <p class="text-2xl md:text-3xl font-extrabold text-cyan-400 mt-1">
-              No More Bid Rigging.
+            <p class="text-3xl md:text-4xl font-black text-cyan-400 mt-2 tracking-tight">
+              Goodbye Bid Rigging.
             </p>
-            <p class="text-sm md:text-base text-slate-400 mt-0.5">
+            <p class="text-base md:text-lg text-slate-400 mt-1">
               Cryptographic sealed bidding for public infrastructure contracts.
             </p>
           </div>
         </div>
       </div>
 
-      <!-- 3 Key Metric Badges -->
+      <!-- 3 Key Impact Metric Figures -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4 border-t border-slate-800">
-        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1">
-          <div class="text-xs text-slate-400 uppercase font-semibold">Annual Sovereign Spend</div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1.5 hover:border-cyan-500/50 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 uppercase font-semibold">Annual Sovereign Spend</span>
+            <span class="text-lg">🏛️</span>
+          </div>
           <div class="text-3xl font-black text-white mono">$13.0 Trillion</div>
-          <div class="text-xs text-emerald-400">15–20% of Global GDP</div>
+          <div class="text-xs text-emerald-400 font-medium">15%–20% of Global GDP</div>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1">
-          <div class="text-xs text-slate-400 uppercase font-semibold">Proof of History Precision</div>
-          <div class="text-3xl font-black text-cyan-400 mono">400ms Clock</div>
-          <div class="text-xs text-slate-400">Immutable Cutoff Enforcement</div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1.5 hover:border-purple-500/50 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 uppercase font-semibold">Consensus Clock</span>
+            <span class="text-lg">⏱️</span>
+          </div>
+          <div class="text-3xl font-black text-cyan-400 mono">400ms Precision</div>
+          <div class="text-xs text-slate-300 font-medium">Solana Proof of History Deadline Lock</div>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1">
-          <div class="text-xs text-slate-400 uppercase font-semibold">Enterprise Sponsored</div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 space-y-1.5 hover:border-emerald-500/50 transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400 uppercase font-semibold">Regulatory Compliance</span>
+            <span class="text-lg">🌐</span>
+          </div>
           <div class="text-3xl font-black text-purple-400 mono">Zero Crypto Gas</div>
-          <div class="text-xs text-slate-400">Frictionless Contractor Relayer</div>
+          <div class="text-xs text-slate-300 font-medium">100% Legal in Every Sovereign Nation</div>
         </div>
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE 2: THE PROBLEM (Face-Punch Stat + Human Angle, <40 words)           -->
+    <!-- SLIDE 2: THE PROBLEM (Face-Punch Stat + Personal Credibility + Exploit Figure) -->
     <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="0:15 - 0:35" data-words="38 Words" data-script="The fatal flaw in procurement isn't bad people—it's a window of time. Between the submission deadline and bid opening, database admins have unmonitored root access to peek at competitor pricing, alter scores, and backdate bids in MySQL. Traditional audits fail because centralized databases produce zero mathematical proof.">
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" 
+         data-time="0:06 - 0:28" 
+         data-words="48 Words" 
+         data-script="Public procurement is a $13 Trillion market, but 25%—over $2.5 Trillion—is lost to corruption. As a lawyer who handled NPAs and bad loan recoveries at a commercial bank, I’ve seen this wreckage firsthand: backdated bids, leaked prices, and rigged tenders disguised as legitimate processes on centralized SQL databases.">
+      
       <div>
-        <div class="text-xs text-rose-400 font-bold uppercase tracking-wider font-mono">The $13 Trillion Critical Vulnerability</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">The Post-Deadline Insider Tampering Window</h2>
+        <div class="text-xs text-rose-400 font-bold uppercase tracking-wider font-mono">The Problem</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          The $2.5 Trillion Corruption Tax on Public Infrastructure
+        </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Broken Web2 Portal -->
-        <div class="bg-slate-900/80 border border-rose-500/30 rounded-2xl p-6 space-y-3">
-          <div class="text-3xl font-black text-rose-400 mono">$13 Trillion / Year</div>
-          <div class="text-sm font-bold text-white">15% of Global GDP Vulnerable to Insider DBA Access</div>
-          <ul class="text-sm text-slate-300 space-y-2 pt-2">
-            <li class="flex items-start gap-2">
-              <span class="text-rose-400 font-bold">✖</span> Database admins hold MySQL root keys.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-rose-400 font-bold">✖</span> Late bids quietly backdated before opening.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-rose-400 font-bold">✖</span> Unencrypted prices leaked to favored bidders.
-            </li>
-          </ul>
-        </div>
-
-        <!-- The Systemic Flaw -->
-        <div class="bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-6 space-y-3">
-          <div class="text-3xl font-black text-cyan-400 mono">Zero Math Proof</div>
-          <div class="text-sm font-bold text-white">Centralized Trust Fails Daily in E-Procurement</div>
-          <ul class="text-sm text-slate-300 space-y-2 pt-2">
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> Server timestamps rewritten in seconds.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> Rogue evaluator scores inflated behind closed doors.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> Admins claim: "That is what our database recorded."
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- SLIDE 3: SOLUTION (Product as Hero + Analogy, <40 words)                  -->
-    <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="0:35 - 0:55" data-words="37 Words" data-script="BidTrace is Chainlink meets sealed envelopes for sovereign infrastructure. We don't just store hashes; Solana's 400-millisecond Proof of History turns time into an unalterable physical law: if a slot expires, code rejects entry forever. Dual envelopes guarantee commercial secrecy, while our on-chain trimmed mean prunes collusive scores.">
-      <div>
-        <div class="text-xs text-cyan-400 font-bold uppercase tracking-wider font-mono">The Hero Mechanism</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">“Chainlink + Sealed Envelopes for Sovereign Capital”</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-cyan-400">Dual-Envelope Sealing</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">OCDS 1.1 Hash</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Blinded technical & financial commitments via RFC 8785 standard. Zero pre-deadline leakage.
-          </p>
-        </div>
-
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-purple-400">Proof of History Clock</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">Physical Boundary</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Solana 400ms clock makes post-deadline tampering physically impossible. Expired slots rejected.
-          </p>
-        </div>
-
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-emerald-400">Blinded Outlier Pruning</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">Olympic Trimmed Mean</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            On-chain algorithm auto-prunes collusive evaluator scores before financial unsealing.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- SLIDE 4: MARKET OPPORTUNITY (Macro Trends & Dream State, <40 words)       -->
-    <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="0:55 - 1:15" data-words="36 Words" data-script="The macro tailwind is massive: the World Bank and UN now mandate OCDS 1.1 open data standards to stop systemic fraud. Our bottoms-up beachhead is the $500 billion in development bank tenders. The dream state is clear: incorruptible sovereign capital where kickbacks are cryptographically eliminated.">
-      <div>
-        <div class="text-xs text-purple-400 font-bold uppercase tracking-wider font-mono">Macro Shift & Bottoms-Up Beachhead</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">From Administrative Paper to Incorruptible Rails</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Left: Macro Trends & Dream State -->
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4">
-          <div class="text-lg font-bold text-cyan-400">Macro Tailwinds & Dream State</div>
-          <ul class="text-sm text-slate-300 space-y-3">
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> <strong>World Bank Mandate:</strong> Enforces OCDS 1.1 anti-corruption standard across all projects.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-purple-400 font-bold">▪</span> <strong>TradFi Shift:</strong> $500B in multilateral tenders migrating on-chain.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-emerald-400 font-bold">▪</span> <strong>Dream State:</strong> Incorruptible sovereign infrastructure with zero kickback windows.
-            </li>
-          </ul>
-        </div>
-
-        <!-- Right: Market Numbers -->
-        <div class="space-y-4 flex flex-col justify-between">
-          <div class="bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-5">
-            <div class="text-3xl font-black text-cyan-400 mono">$500 Billion SAM</div>
-            <div class="text-xs text-slate-400 mt-1">Multilateral Development Bank Tenders (Immediate Beachhead)</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        
+        <!-- Left Column: The Scale & Insider Credibility -->
+        <div class="flex flex-col justify-between space-y-4">
+          <!-- The Hemorrhage Card -->
+          <div class="bg-slate-900/90 border border-rose-500/40 rounded-2xl p-6 glow-rose">
+            <div class="flex items-center justify-between">
+              <span class="text-xs uppercase font-mono font-bold text-rose-400 tracking-wider">The Global Hemorrhage</span>
+              <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded font-mono">World Bank & UN</span>
+            </div>
+            <div class="text-4xl font-black text-rose-400 mono mt-2">$2.5 Trillion Lost</div>
+            <div class="text-sm font-semibold text-white mt-1">20% to 25% of all public infrastructure capital stolen annually</div>
+            <p class="text-xs text-slate-400 mt-2">Money meant for hospitals, clean water, and transport vanishes to tender cartels and corrupt officials.</p>
           </div>
-          <div class="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-5">
-            <div class="text-3xl font-black text-purple-400 mono">$13.0 Trillion TAM</div>
-            <div class="text-xs text-slate-400 mt-1">Total Annual Global Public Infrastructure Procurement</div>
+
+          <!-- Personal Forensic Authority Badge -->
+          <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-5 bg-gradient-to-br from-slate-900 to-amber-950/20">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">⚖️</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">Forensic Ground-Truth (Why I Know This)</span>
+            </div>
+            <p class="text-sm text-slate-200 mt-1.5 leading-snug">
+              <strong>As a lawyer who worked in the NPA department of a commercial bank</strong>, I conducted forensic autopsies of defaulted projects, fraudulent bank guarantees, and bid manipulation up close.
+            </p>
           </div>
         </div>
+
+        <!-- Right Column: Visual Exploit Diagram (Centralized DB Root Access) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-mono uppercase text-slate-400 font-semibold mb-2">The Root Vulnerability: Centralized SQL Trust</div>
+            <div class="text-sm font-bold text-white mb-3">SAP Ariba, Procore & Govt e-Portals give DB Admins God-Mode</div>
+            
+            <!-- Visual Exploit Flowchart (Figure) -->
+            <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs space-y-2.5">
+              <div class="flex items-center justify-between text-slate-400 border-b border-slate-800/80 pb-1.5">
+                <span>SQL Vulnerability Vector</span>
+                <span class="text-rose-400 font-bold">Admin Root Access</span>
+              </div>
+              <div class="flex items-center gap-2 text-rose-300">
+                <span class="text-rose-500 font-bold">✖ 1. Pre-Deadline Peek:</span>
+                <span class="text-slate-300 text-[11px]">Unseals competitor prices before cutoff</span>
+              </div>
+              <div class="flex items-center gap-2 text-rose-300">
+                <span class="text-rose-500 font-bold">✖ 2. SQL Backdating:</span>
+                <span class="text-slate-400 text-[11px]"><code>UPDATE bids SET submitted_at = '14:49:00'</code></span>
+              </div>
+              <div class="flex items-center gap-2 text-rose-300">
+                <span class="text-rose-500 font-bold">✖ 3. Commercial Espionage:</span>
+                <span class="text-slate-300 text-[11px]">Losing bidders' proprietary margins leaked</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Summary Pill -->
+          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>Result: Systems rely on human honesty</span>
+            <span class="text-rose-400 font-bold">Zero Mathematical Proof</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE 5: HERO METRICS ("This Is Already Working!", <40 words)             -->
+    <!-- SLIDE 3: SOLUTION (The Cryptographic Swiss Vault + Direct Mechanism Mapping) -->
     <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="1:15 - 1:35" data-words="38 Words" data-script="This is already working live today. We have 10 Anchor Rust instructions deployed on Solana Devnet and 78 passing unit tests. Crucially, unlike naive auction schemes where one rogue bidder can freeze opening, our independent leaf architecture and on-chain bond slashing ensure compliant contractors unseal cleanly with zero deadlock.">
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-5" 
+         data-time="0:28 - 1:00" 
+         data-words="72 Words" 
+         data-script="BidTrace is the cryptographic Swiss Vault for public procurement. We replace database admin trust with mathematical certainty: Contractors encrypt bids in-browser with AES-256 dual envelopes—servers never see plaintext. Deadlines are locked to Solana’s Proof of History clock—late bids are rejected at the bytecode level. And proposals are scored blindly, discarding rogue outlier bribes. Best of all, our zero-fiat relayer requires zero crypto tokens, making BidTrace 100% legally compliant worldwide.">
+      
       <div>
-        <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider font-mono">Traction & Verified Execution</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">“This Is Already Working Live on Solana”</h2>
+        <div class="flex items-center justify-between">
+          <div class="text-xs text-cyan-400 font-bold uppercase tracking-wider font-mono">Solution: BidTrace</div>
+          <span class="text-xs bg-cyan-950 text-cyan-300 border border-cyan-800/80 px-2.5 py-0.5 rounded-full font-mono">
+            World Bank OCDS 1.1 Standard
+          </span>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-1">
+          The Cryptographic Swiss Vault for Public Procurement
+        </h2>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-5 text-center space-y-2">
-          <div class="text-4xl font-black text-cyan-400 mono">10</div>
-          <div class="text-sm font-bold text-white">Anchor Instructions</div>
-          <div class="text-xs text-slate-400">Deployed on Solana Devnet (x3iSm5BC...ESjZ)</div>
+      <!-- The 4-Pillar Cryptographic Mapping (Figure Table) -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden divide-y divide-slate-800/80 shadow-2xl">
+        
+        <!-- Row 1: Pre-Deadline Leaks -->
+        <div class="p-3.5 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/40 transition">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-xs">1</span>
+            <div>
+              <div class="text-xs font-mono text-rose-400 font-bold">Pre-Deadline Leaks</div>
+              <div class="text-xs text-slate-400">Insiders peeking at rival pricing</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 sm:text-right">
+            <span class="text-slate-500 hidden sm:inline">➔</span>
+            <div>
+              <div class="text-sm font-bold text-cyan-400 flex items-center gap-1.5 sm:justify-end">
+                <span>Client-Side AES-256 Dual Envelopes</span> 🔒
+              </div>
+              <div class="text-xs text-slate-300">Encrypted in browser; zero plaintext touches servers until official reveal</div>
+            </div>
+          </div>
         </div>
 
-        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 text-center space-y-2">
-          <div class="text-4xl font-black text-emerald-400 mono">78 / 78</div>
-          <div class="text-sm font-bold text-white">Passing Unit Tests</div>
-          <div class="text-xs text-slate-400">100% Cross-Language RFC 8785 Parity</div>
+        <!-- Row 2: Backdated Late Bids -->
+        <div class="p-3.5 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/40 transition">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-xs">2</span>
+            <div>
+              <div class="text-xs font-mono text-rose-400 font-bold">Backdated Late Bids</div>
+              <div class="text-xs text-slate-400">SQL admin rewrites submission time</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 sm:text-right">
+            <span class="text-slate-500 hidden sm:inline">➔</span>
+            <div>
+              <div class="text-sm font-bold text-purple-400 flex items-center gap-1.5 sm:justify-end">
+                <span>Solana Proof of History Consensus Clock</span> ⏱️
+              </div>
+              <div class="text-xs text-slate-300">Bytecode deadline cutoff; late bids physically rejected on-chain (0x1773)</div>
+            </div>
+          </div>
         </div>
 
-        <div class="bg-slate-900/90 border border-rose-500/30 rounded-2xl p-5 text-center space-y-2">
-          <div class="text-4xl font-black text-rose-400 mono">1-Click</div>
-          <div class="text-sm font-bold text-white">Attack Simulator</div>
-          <div class="text-xs text-slate-400">Live On-Chain Exploits Blocked in Real-Time</div>
+        <!-- Row 3: Evaluator Bribery -->
+        <div class="p-3.5 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/40 transition">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-xs">3</span>
+            <div>
+              <div class="text-xs font-mono text-rose-400 font-bold">Evaluator Bribery</div>
+              <div class="text-xs text-slate-400">Corrupt scoring inflating favored bidder</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 sm:text-right">
+            <span class="text-slate-500 hidden sm:inline">➔</span>
+            <div>
+              <div class="text-sm font-bold text-emerald-400 flex items-center gap-1.5 sm:justify-end">
+                <span>Blinded Committee & Olympic Scoring</span> ⚖️
+              </div>
+              <div class="text-xs text-slate-300">Anonymized proposals; algorithm auto-discards rogue corrupt score spikes</div>
+            </div>
+          </div>
         </div>
 
-        <div class="bg-slate-900/90 border border-purple-500/30 rounded-2xl p-5 text-center space-y-2">
-          <div class="text-4xl font-black text-purple-400 mono">0 Deadlock</div>
-          <div class="text-sm font-bold text-white">Leaf State Machine</div>
-          <div class="text-xs text-slate-400">Rogue bidder default cannot freeze compliant tenders.</div>
+        <!-- Row 4: Commercial Trade Secrets -->
+        <div class="p-3.5 px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-800/40 transition">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold text-xs">4</span>
+            <div>
+              <div class="text-xs font-mono text-rose-400 font-bold">Trade Secret Espionage</div>
+              <div class="text-xs text-slate-400">Losing contractors' margins leaked to rivals</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 sm:text-right">
+            <span class="text-slate-500 hidden sm:inline">➔</span>
+            <div>
+              <div class="text-sm font-bold text-amber-400 flex items-center gap-1.5 sm:justify-end">
+                <span>Permanent On-Chain Secrecy Vault</span> 🛡️
+              </div>
+              <div class="text-xs text-slate-300">Financial keys of failing bidders stay cryptographically locked forever (0x1778)</div>
+            </div>
+          </div>
         </div>
+
+      </div>
+
+      <!-- Bottom Relayer Banner: Zero Crypto Token Legal Compliance -->
+      <div class="p-3 bg-gradient-to-r from-cyan-950/80 via-slate-900 to-purple-950/80 border border-cyan-800/60 rounded-xl flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-cyan-400 font-bold font-mono">⚡ Zero-Fiat Gas Relayer:</span>
+          <span class="text-slate-300">Contractors sign with browser keys. Zero tokens or SOL touched.</span>
+        </div>
+        <span class="text-emerald-400 font-bold hidden sm:inline">100% Legally Compliant Worldwide</span>
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE 6: BUSINESS MODEL ("Why Will This Keep Working!", <40 words)        -->
+    <!-- SLIDE 4: MARKET OPPORTUNITY (TAM/SAM/SOM + World Bank 2021 Report Validation) -->
     <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="1:35 - 1:50" data-words="39 Words" data-script="Why will this keep working? We monetize through a 0.05% take-rate on awarded contracts plus surety underwriting fees. Our moat is distribution: contractors pay zero crypto gas, and each onboarded government locks hundreds of contractors into our verification rail, creating an irreversible compliance standard.">
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" 
+         data-time="1:00 - 1:20" 
+         data-words="46 Words" 
+         data-script="Our beachhead is the $120 Billion in multilateral projects funded by the World Bank and ADB. In its landmark report on disruptive procurement, the World Bank validated blockchain's anti-corruption power, but flagged privacy, gas costs, and token bans. BidTrace was purpose-built to solve all three.">
+      
       <div>
-        <div class="text-xs text-cyan-400 font-bold uppercase tracking-wider font-mono">Network Effects & Sustainable Revenue</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">“Why This Keeps Growing: The Relayer Moat”</h2>
+        <div class="text-xs text-purple-400 font-bold uppercase tracking-wider font-mono">Market Opportunity & Institutional Validation</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          A $13 Trillion Market Demanding Cryptographic Truth
+        </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Revenue Streams -->
-        <div class="bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-cyan-400">Monetization Streams</div>
-          <ul class="text-sm text-slate-300 space-y-3">
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> <strong>0.05% Protocol Take-Rate:</strong> Settled contract volume ($250M ARR at 1% market penetration).
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> <strong>Surety Underwriting API:</strong> Verification fees paid by commercial surety bond providers.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-cyan-400 font-bold">▪</span> <strong>Zero Crypto Gas:</strong> Relayer eliminates balance friction for enterprise bidders.
-            </li>
-          </ul>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        
+        <!-- Left: TAM / SAM / SOM Concentric Breakdown (Figure) -->
+        <div class="space-y-3.5">
+          <!-- SOM Beachhead -->
+          <div class="bg-slate-900/90 border border-cyan-500/60 rounded-xl p-4.5 glow-cyan relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 text-cyan-500/10 font-black text-6xl mono">SOM</div>
+            <div class="text-xs text-cyan-400 font-mono font-bold uppercase">Immediate Beachhead (SOM)</div>
+            <div class="text-3xl font-black text-white mono mt-1">$120 Billion / Year</div>
+            <div class="text-xs text-slate-300 mt-1 font-medium">Multilateral Development Bank Projects (World Bank, ADB, IMF)</div>
+            <div class="text-[11px] text-cyan-300/80 mt-1">Legally mandated to enforce OCDS 1.1 anti-corruption compliance.</div>
+          </div>
+
+          <!-- SAM High-Risk -->
+          <div class="bg-slate-900/80 border border-purple-500/40 rounded-xl p-4">
+            <div class="text-xs text-purple-400 font-mono font-bold uppercase">Serviceable Addressable Market (SAM)</div>
+            <div class="text-2xl font-black text-white mono mt-1">$2.5 Trillion / Year</div>
+            <div class="text-xs text-slate-400 mt-0.5">High-Risk Infrastructure & Emerging Market Tenders prone to bid rigging</div>
+          </div>
+
+          <!-- TAM Global -->
+          <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-400 font-mono uppercase">Total Global Public Procurement (TAM)</div>
+              <div class="text-xl font-black text-white mono">$13.0 Trillion / Year</div>
+            </div>
+            <span class="text-xs text-emerald-400 font-mono bg-emerald-950 px-2.5 py-1 rounded border border-emerald-800/80">15–20% World GDP</span>
+          </div>
         </div>
 
-        <!-- Network Moat -->
-        <div class="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-purple-400">Network Effects & Distribution</div>
-          <ul class="text-sm text-slate-300 space-y-3">
-            <li class="flex items-start gap-2">
-              <span class="text-purple-400 font-bold">▪</span> <strong>Municipal Flywheel:</strong> Each city onboarded locks regional contractors into the BidTrace relayer.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-purple-400 font-bold">▪</span> <strong>Relayer Sticky Moat:</strong> Enterprise API contracts ensure sustainable long-term cash flow.
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-purple-400 font-bold">▪</span> <strong>Standards Lock-In:</strong> Becomes the mandatory OCDS 1.1 compliance referee.
-            </li>
-          </ul>
+        <!-- Right: Official World Bank January 2021 Report Box (Figure) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <!-- Report Citation Header -->
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+              <span class="text-2xl">📑</span>
+              <div>
+                <div class="text-xs font-mono text-cyan-400 font-bold uppercase">World Bank Official Report (Jan 2021)</div>
+                <div class="text-sm font-bold text-white leading-tight">"Disruptive Technologies in Public Procurement"</div>
+              </div>
+            </div>
+
+            <!-- The 3 World Bank Barriers & BidTrace Solutions -->
+            <div class="mt-4 space-y-2.5 text-xs">
+              <div class="text-[11px] uppercase font-mono text-slate-400 font-semibold">Report explicitly acknowledged blockchain, but warned of 3 hurdles:</div>
+              
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-0.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400 font-medium">1. Commercial Privacy Risk:</span>
+                  <span class="text-emerald-400 font-bold">Solved ✓</span>
+                </div>
+                <div class="text-slate-300 text-[11px]">➔ BidTrace Browser AES-256 Dual Envelopes</div>
+              </div>
+
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-0.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400 font-medium">2. Gas Cost & Speed Volatility:</span>
+                  <span class="text-emerald-400 font-bold">Solved ✓</span>
+                </div>
+                <div class="text-slate-300 text-[11px]">➔ Solana $0.00025 predictable sub-second txs</div>
+              </div>
+
+              <div class="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 space-y-0.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400 font-medium">3. Sovereign Crypto Legal Restrictions:</span>
+                  <span class="text-emerald-400 font-bold">Solved ✓</span>
+                </div>
+                <div class="text-slate-300 text-[11px]">➔ Zero-Fiat Relayer (zero tokens on public books)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-400 mt-3 pt-2.5 border-t border-slate-800/80 italic">
+            "BidTrace was engineered directly as the turnkey answer to the World Bank's roadmap."
+          </div>
         </div>
+
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- SLIDE 7: TEAM (Founder-Market Fit & Credentials, <40 words)               -->
+    <!-- SLIDE 5: BUSINESS MODEL (High-Margin SaaS + 200x ROI Figure)              -->
     <!-- ========================================================================= -->
-    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" data-time="1:50 - 2:00" data-words="39 Words" data-script="We are uniquely built for this problem—combining deep expertise in Solana Anchor engineering, World Bank OCDS standards, and institutional compliance. We give contractors independent cryptographic receipts that hold up in legal tribunals. We built BidTrace to make public infrastructure incorruptible. Thank you.">
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" 
+         data-time="1:20 - 1:38" 
+         data-words="40 Words" 
+         data-script="We charge an annual enterprise SaaS license from $50k to $250k, plus a 0.05% integrity fee funded directly through existing contractor submission fee budgets. When multilateral lenders mandate BidTrace on loan tranches, it cascades across 189 member countries automatically.">
+      
       <div>
-        <div class="text-xs text-amber-400 font-bold uppercase tracking-wider font-mono">Founder-Problem Fit</div>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">Built for Sovereign Cryptographic Settlement</h2>
+        <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider font-mono">Business Model & Monetization</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          High-Margin GovTech SaaS with 200x Anti-Corruption ROI
+        </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-cyan-400">Solana Anchor Systems</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">High-Throughput State Machines</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Temporal slot phase locks, blinded commitments, and on-chain Olympic scoring algorithms.
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Stream 1 -->
+        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg font-bold">🏢</div>
+            <div class="text-lg font-bold text-white mt-3">Enterprise GovTech SaaS</div>
+            <div class="text-xs font-mono text-cyan-400 font-semibold">$50k – $250k / Year</div>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+              Annual recurring software license for Ministries of Transport, Municipal Public Works, and EPC Developers. Turnkey API integration.
+            </p>
+          </div>
+          <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-800">Fits existing IT budget lines</div>
+        </div>
+
+        <!-- Stream 2 -->
+        <div class="bg-slate-900/90 border border-purple-500/30 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg font-bold">📊</div>
+            <div class="text-lg font-bold text-white mt-3">Per-Tender Integrity Fee</div>
+            <div class="text-xs font-mono text-purple-400 font-semibold">0.05% of Awarded Volume</div>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+              Micro-fee deducted from standard contractor bid submission fees already charged on every public tender. High-volume transaction upside.
+            </p>
+          </div>
+          <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-800">Zero new legislation needed</div>
+        </div>
+
+        <!-- Stream 3: The Growth Multiplier -->
+        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg font-bold">🌐</div>
+            <div class="text-lg font-bold text-white mt-3">Institutional Cascade</div>
+            <div class="text-xs font-mono text-emerald-400 font-semibold">189 Member Countries</div>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+              When World Bank or ADB attaches BidTrace as a loan agreement covenant, adoption automatically cascades with zero bilateral CAC.
+            </p>
+          </div>
+          <div class="text-[11px] text-emerald-400 font-bold pt-2 border-t border-slate-800">The Loan Mandate Flywheel</div>
+        </div>
+
+      </div>
+
+      <!-- Visual ROI Bar Figure -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">💰</span>
+          <div>
+            <div class="text-sm font-bold text-white">The Customer Math: A 200x Return on Investment</div>
+            <div class="text-xs text-slate-400">Eliminating a 20%–25% corruption loss for a &lt;0.1% platform fee</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono font-bold text-sm">
+            Platform Cost: &lt;0.1%
+          </div>
+          <span class="text-slate-500">➔</span>
+          <div class="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-mono font-black text-sm shadow">
+            ROI: 200x+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SLIDE 6: TEAM / WHY ME? (Founder-Market Fit + Deployed Execution)          -->
+    <!-- ========================================================================= -->
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-6" 
+         data-time="1:38 - 1:55" 
+         data-words="40 Words" 
+         data-script="I built BidTrace because I sit at the exact intersection of law, banking forensics, and cryptography. I didn’t read about tender fraud in a textbook—I saw the defaults on my desk. The prototype is live. Join us. Goodbye Bid Rigging.">
+      
+      <div>
+        <div class="text-xs text-amber-400 font-bold uppercase tracking-wider font-mono">Team / Why Me?</div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          Unfair Advantage: Law + Banking NPA Forensics + Cryptography
+        </h2>
+      </div>
+
+      <!-- 3-Pillar Founder-Market Fit Graphic (Figure) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-2 hover:border-amber-500/50 transition">
+          <div class="text-2xl">⚖️</div>
+          <div class="text-lg font-bold text-white">Commercial Lawyer</div>
+          <div class="text-xs font-mono text-amber-400 font-semibold">Legal & Regulatory Domain</div>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            Deep expertise in Public Procurement Acts, FIDIC contract conditions, and sovereign arbitration rules. Understands tender dispute litigation.
           </p>
         </div>
 
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-purple-400">OCDS 1.1 Cryptography</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">World Bank Data Standard</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Deterministic RFC 8785 canonical hashing and open-contracting data schemas.
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-2 hover:border-cyan-500/50 transition">
+          <div class="text-2xl">🏦</div>
+          <div class="text-lg font-bold text-white">Commercial Bank NPA Veteran</div>
+          <div class="text-xs font-mono text-cyan-400 font-semibold">Forensic Asset Recovery</div>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            Handled bad loans, distressed assets, and defaulted contractor guarantees (MT760/surety bonds). Conducted forensic autopsies of failed tenders.
           </p>
         </div>
 
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-3">
-          <div class="text-lg font-bold text-emerald-400">B2G & TradFi Relayers</div>
-          <div class="text-xs font-mono text-slate-400 uppercase">Zero-Friction Enterprise</div>
-          <p class="text-sm text-slate-300 leading-relaxed">
-            Zero-gas relayer and air-gapped cryptographic bidder receipts giving contractors legal standing.
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-2 hover:border-purple-500/50 transition">
+          <div class="text-2xl">💻</div>
+          <div class="text-lg font-bold text-white">Cryptographic Architect</div>
+          <div class="text-xs font-mono text-purple-400 font-semibold">Systems Engineering</div>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            Architected the complete BidTrace protocol on Solana: client-side dual-envelopes, RFC 8785 canonical hashing, and zero-fiat relayer.
           </p>
+        </div>
+
+      </div>
+
+      <!-- Live Execution Badges: "This is Already Live Today" -->
+      <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="font-bold text-white">Live Execution Status:</span>
+        </div>
+        <div class="flex items-center gap-3 font-mono">
+          <span class="px-2.5 py-1 rounded bg-slate-950 text-cyan-300 border border-slate-800">10 Anchor Instructions on Devnet</span>
+          <span class="px-2.5 py-1 rounded bg-slate-950 text-emerald-300 border border-slate-800">78 / 78 Passing Tests</span>
+          <span class="px-2.5 py-1 rounded bg-slate-950 text-purple-300 border border-slate-800">1-Click Attack Simulator</span>
         </div>
       </div>
 
-      <!-- Submission Footer -->
-      <div class="bg-slate-900/90 border border-cyan-500/40 rounded-xl p-4 flex items-center justify-between">
-        <div class="space-y-0.5">
-          <div class="text-xs font-mono text-cyan-400 font-bold">COLOSSEUM CRYPTO WORLD'S FAIR 2026 SUBMISSION</div>
-          <div class="text-xs text-slate-300">Program ID: <span class="mono text-slate-400">x3iSm5BCoXvEfNwT6m6Vs7ApBJtKjvuTm7qKBJtESjZ</span></div>
-        </div>
-        <div class="text-right">
-          <a href="/" class="text-cyan-400 hover:underline text-sm font-bold">bidtrace.net ↗</a>
-        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SLIDE 7: CALL TO ACTION & CONNECT (URL, X/Twitter, QR Code)               -->
+    <!-- ========================================================================= -->
+    <div class="slide flex-col justify-center max-w-5xl w-full space-y-8 text-center" 
+         data-time="1:55 - 2:00" 
+         data-words="15 Words" 
+         data-script="If you like our cause, visit us on bidtrace.net and join us on X. Thank you.">
+      
+      <div class="space-y-3">
+        <img src="/logo-mark.png" alt="BidTrace" class="w-24 h-24 object-contain mx-auto drop-shadow-[0_0_35px_rgba(6,182,212,0.4)]">
+        <h2 class="text-5xl md:text-6xl font-black text-white tracking-tight">
+          Bid<span class="text-cyan-400">Trace</span>
+        </h2>
+        <p class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+          "Goodbye Bid Rigging."
+        </p>
       </div>
+
+      <!-- Connection Hub Cards with QR Code -->
+      <div class="max-w-2xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+        
+        <!-- Live Web Portal Card -->
+        <a href="https://bidtrace.net" target="_blank" class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-6 hover:border-cyan-400 hover:glow-cyan transition flex flex-col items-center justify-center space-y-3 group cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+            🌐
+          </div>
+          <div>
+            <div class="text-xs uppercase font-mono text-slate-400 font-semibold">Live Protocol & Demo</div>
+            <div class="text-2xl font-black text-white mono group-hover:text-cyan-300 transition">bidtrace.net</div>
+          </div>
+          <span class="text-xs text-cyan-400 font-medium">Explore live portals & attacks ↗</span>
+        </a>
+
+        <!-- X (Twitter) Community Card -->
+        <a href="https://x.com/bidtrace" target="_blank" class="bg-slate-900/90 border border-purple-500/40 rounded-2xl p-6 hover:border-purple-400 hover:glow-purple transition flex flex-col items-center justify-center space-y-3 group cursor-pointer">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+            𝕏
+          </div>
+          <div>
+            <div class="text-xs uppercase font-mono text-slate-400 font-semibold">Join the Movement</div>
+            <div class="text-2xl font-black text-white mono group-hover:text-purple-300 transition">@bidtrace</div>
+          </div>
+          <span class="text-xs text-purple-400 font-medium">Follow updates & releases ↗</span>
+        </a>
+
+      </div>
+
+      <!-- Closing Callout -->
+      <div class="pt-2 text-slate-400 text-sm">
+        Public infrastructure belongs to the public. Let's make corruption mathematically impossible.
+      </div>
+
     </div>
 
   </main>
 
-  <!-- BOTTOM HUD DRAWER: Speaker Notes & Keyboard Guide -->
-  <footer class="border-t border-slate-800 bg-slate-950/90 backdrop-blur px-6 py-3 z-50">
+  <!-- BOTTOM HUD DRAWER: Speaker Script, Pacing Guide & Navigation -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/95 backdrop-blur px-6 py-3 z-50">
     <div class="max-w-5xl mx-auto flex items-center justify-between gap-6">
       <!-- Script Drawer -->
       <div id="script-drawer" class="flex-1">
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-[10px] uppercase font-bold tracking-wider text-cyan-400 mono">Speaker Script:</span>
-          <span id="script-time-badge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 mono">0:00 - 0:15</span>
-          <span id="script-word-count" class="text-[10px] text-slate-500 mono">24 Words</span>
+          <span class="text-[10px] uppercase font-bold tracking-wider text-cyan-400 mono">Speaker Script (2-Min Paced):</span>
+          <span id="script-time-badge" class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 mono">0:00 - 0:06</span>
+          <span id="script-word-count" class="text-[10px] text-slate-400 mono">14 Words</span>
         </div>
-        <p id="script-text" class="text-sm md:text-base font-medium text-slate-100 leading-relaxed">
-          "Judges, every year $13 trillion is spent on public infrastructure, yet bid rigging and database tampering steal up to 25% of that capital. BidTrace eliminates bid rigging with cryptographic sealed bidding on Solana, turning administrative trust into mathematical certainty."
+        <p id="script-text" class="text-sm md:text-base font-semibold text-slate-100 leading-snug">
+          "Good morning, I’m [Your Name]. This is BidTrace: Goodbye Bid Rigging."
         </p>
       </div>
 
-      <!-- Nav Buttons -->
-      <div class="flex items-center gap-2 pt-2">
-        <button onclick="prevSlide()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs border border-slate-700 cursor-pointer">
+      <!-- Previous / Next Controls -->
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="prevSlide()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs border border-slate-700 cursor-pointer transition">
           ◀ Prev
         </button>
-        <button onclick="nextSlide()" class="px-4 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer shadow">
+        <button onclick="nextSlide()" class="px-4.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-lg text-xs cursor-pointer shadow transition">
           Next ▶
         </button>
       </div>
     </div>
   </footer>
 
+  <!-- SCRIPT ENGINE -->
   <script>
     const slides = document.querySelectorAll('.slide');
     let currentSlide = 0;
@@ -401,7 +675,11 @@
       document.getElementById('current-slide-num').innerText = currentSlide + 1;
       document.getElementById('total-slides-num').innerText = slides.length;
 
-      // Update Script
+      // Update progress bar
+      const progressPercent = ((currentSlide + 1) / slides.length) * 100;
+      document.getElementById('slide-progress-bar').style.width = progressPercent + '%';
+
+      // Update Script & Metadata
       const s = slides[currentSlide];
       document.getElementById('script-text').innerText = '"' + s.getAttribute('data-script') + '"';
       document.getElementById('script-time-badge').innerText = s.getAttribute('data-time');
@@ -421,6 +699,14 @@
       drawer.classList.toggle('hidden');
     }
 
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+      } else {
+        document.exitFullscreen().catch(err => console.log(err));
+      }
+    }
+
     function toggleTimer() {
       if (isTimerRunning) {
         clearInterval(timerInterval);
@@ -435,8 +721,12 @@
           const secs = String(timerSeconds % 60).padStart(2, '0');
           const el = document.getElementById('timer-display');
           el.innerText = `${mins}:${secs}`;
-          if (timerSeconds >= 120) {
+          
+          if (timerSeconds >= 115 && timerSeconds < 120) {
             el.classList.remove('text-cyan-400');
+            el.classList.add('text-amber-400');
+          } else if (timerSeconds >= 120) {
+            el.classList.remove('text-cyan-400', 'text-amber-400');
             el.classList.add('text-rose-400');
           }
         }, 1000);
@@ -450,7 +740,7 @@
       document.getElementById('btn-timer-toggle').innerText = '▶';
       const el = document.getElementById('timer-display');
       el.innerText = '00:00';
-      el.classList.remove('text-rose-400');
+      el.classList.remove('text-rose-400', 'text-amber-400');
       el.classList.add('text-cyan-400');
     }
 
@@ -465,12 +755,11 @@
       } else if (e.key.toLowerCase() === 's') {
         toggleNotes();
       } else if (e.key.toLowerCase() === 'f') {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
+        toggleFullscreen();
       }
     });
 
-    // Initialize
+    // Initialize first slide
     showSlide(0);
   </script>
 </body>
