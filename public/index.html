@@ -4,14 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BidTrace - Goodbye Bid Rigging</title>
+  <meta name="description" content="Cryptographic sealed bidding for public infrastructure contracts on Solana. Goodbye bid rigging.">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-  <script src="/solanaWeb3.min.js"></script>
+  <script src="/solanaWeb3.min.js" defer></script>
   <script src="/ocds.js"></script>
   <script src="/bidtrace_web3.js"></script>
+  <script src="/config.js"></script>
+  <script src="/app-enhance.js"></script>
   <style>
+    :root {
+      --bt-bg: #020617;
+      --bt-card: #0f172a;
+      --bt-accent: #22d3ee;
+      --bt-accent2: #818cf8;
+      --bt-success: #34d399;
+      --bt-warn: #fbbf24;
+      --bt-danger: #fb7185;
+    }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    h1, h2, .font-display { font-family: 'Space Grotesk', 'Inter', sans-serif; }
+    .mono, code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
     @keyframes pulse-glow {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.8; transform: scale(1.02); }
@@ -47,6 +65,46 @@
       background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(99, 102, 241, 0.3) 100%) !important;
       border-color: #06b6d4 !important;
       box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.4);
+    }
+    /* ===== BidTrace Redesign System (Phases 1-3) ===== */
+    .bt-card { background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(2,6,23,.9)); border: 1px solid #1e293b; border-radius: 1rem; }
+    .bt-card-hover { transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .bt-card-hover:hover { transform: translateY(-1px); border-color: #334155; box-shadow: 0 12px 32px -12px rgba(34,211,238,.25); }
+    .bt-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem .9rem; border-radius:.65rem; font-size:.75rem; font-weight:700; border:1px solid transparent; cursor:pointer; transition: all .15s ease; }
+    .bt-btn:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+    .bt-btn-primary { background: linear-gradient(135deg,#06b6d4,#6366f1); color:#020617; }
+    .bt-btn-primary:hover { filter: brightness(1.1); }
+    .bt-btn-ghost { background:#0f172a; color:#e2e8f0; border-color:#334155; }
+    .bt-btn-ghost:hover { background:#1e293b; }
+    .bt-btn-danger { background:#881337; color:#fff; border-color:#fb7185; }
+    .bt-btn-danger:hover { background:#9f1239; }
+    .bt-mode-active { background: linear-gradient(135deg, rgba(34,211,238,.25), rgba(129,140,248,.25)) !important; border-color:#22d3ee !important; color:#fff !important; }
+    [data-bt-mode="guided"] [data-bt-advanced] { display: none !important; }
+    .bt-collapsed-hint { opacity:.9; }
+    #bt-toast-root { position: fixed; right: 1rem; bottom: 1rem; z-index: 100; display:flex; flex-direction:column; gap:.5rem; max-width:min(92vw,380px); }
+    .bt-toast { display:flex; gap:.6rem; align-items:flex-start; background:rgba(15,23,42,.96); border:1px solid #334155; border-radius:.8rem; padding:.7rem .85rem; font-size:.75rem; color:#e2e8f0; box-shadow:0 16px 40px -12px rgba(0,0,0,.6); opacity:0; transform:translateY(8px); transition:all .3s ease; backdrop-filter: blur(8px); }
+    .bt-toast.show { opacity:1; transform:none; }
+    .bt-toast-dot { width:.6rem; height:.6rem; border-radius:9999px; margin-top:.25rem; background:#94a3b8; flex:none; }
+    .bt-toast-success { border-color: rgba(52,211,153,.5); } .bt-toast-success .bt-toast-dot { background:#34d399; box-shadow:0 0 10px #34d399; }
+    .bt-toast-warning { border-color: rgba(251,191,36,.5); } .bt-toast-warning .bt-toast-dot { background:#fbbf24; box-shadow:0 0 10px #fbbf24; }
+    .bt-toast-error, .bt-toast-danger { border-color: rgba(251,113,133,.6); } .bt-toast-error .bt-toast-dot, .bt-toast-danger .bt-toast-dot { background:#fb7185; box-shadow:0 0 10px #fb7185; }
+    .bt-toast-info .bt-toast-dot { background:#22d3ee; box-shadow:0 0 10px #22d3ee; }
+    .bt-confirm-overlay { position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .bt-confirm-card { max-width:26rem; width:100%; background:#0f172a; border:1px solid #334155; border-radius:1rem; padding:1.25rem; }
+    .bt-confirm-title { font-weight:800; color:#fff; margin-bottom:.4rem; }
+    .bt-confirm-body { font-size:.8rem; color:#94a3b8; margin-bottom:1rem; }
+    .bt-confirm-row { display:flex; gap:.6rem; justify-content:flex-end; }
+    .bt-help { font-size:11px; color:#94a3b8; }
+    .bt-kbd { font-family:'JetBrains Mono',monospace; font-size:10px; background:#020617; border:1px solid #334155; border-radius:.35rem; padding:.05rem .35rem; color:#cbd5e1; }
+    .bt-step-num { width:1.4rem; height:1.4rem; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; background:#1e293b; border:1px solid #334155; color:#cbd5e1; flex:none; }
+    .bt-fade-in { animation: btFade .4s ease both; }
+    @keyframes btFade { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+    @media (max-width: 640px) {
+      section.sticky { position: static !important; }
+      #bt-toast-root { left:1rem; right:1rem; max-width:none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
     }
   </style>
 </head>
@@ -174,12 +232,28 @@
         </div>
 
         <!-- Global Protocol Reset -->
-        <button onclick="resetGlobalProtocol()" title="Reset Protocol Relayer State" class="px-2.5 py-1.5 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer">
+        <button onclick="resetGlobalProtocol()" title="Reset Protocol Relayer State" class="px-2.5 py-1.5 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 border border-slate-800 rounded-lg text-xs transition flex items-center gap-1 cursor-pointer" aria-label="Reset protocol state">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           <span>Reset</span>
         </button>
       </div>
     </header>
+
+    <!-- Experience mode toggle (Guided vs Advanced) -->
+    <div class="bt-card bt-card-hover flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5" role="group" aria-label="Experience mode">
+      <div class="flex items-center gap-2">
+        <span class="bt-step-num">✦</span>
+        <div>
+          <div class="text-xs font-bold text-white">Choose your experience</div>
+          <div id="bt-mode-hint" class="bt-help">Guided: follow steps 1–5. Technical details are tucked away.</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="bt-mode-guided" onclick="window.BidTraceUI && BidTraceUI.setMode('guided')" class="bt-btn bt-btn-ghost" aria-pressed="true">🧭 Guided</button>
+        <button id="bt-mode-advanced" onclick="window.BidTraceUI && BidTraceUI.setMode('advanced')" class="bt-btn bt-btn-ghost" aria-pressed="false">🛠️ Advanced</button>
+        <span class="bt-help hidden md:inline">Press <span class="bt-kbd">Space</span> for next step</span>
+      </div>
+    </div>
 
     <!-- ======================================================================= -->
     <!-- EXECUTIVE HERO: THE $13T PROBLEM & SOLANA PROOF                         -->
@@ -207,10 +281,20 @@
         </div>
 
         <div class="max-w-4xl space-y-3">
-          <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">Goodbye Bid Rigging.</h1>
+          <h1 class="font-display text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">Goodbye Bid Rigging.</h1>
           <p class="text-sm md:text-base text-slate-300 leading-relaxed">
-            Cryptographic sealed bidding for public infrastructure contracts. Eliminating the <span class="text-rose-300 font-semibold">Post-Deadline Insider Exploitation Window</span> across <span class="text-amber-300 font-semibold">$13 Trillion</span> of public works. Cryptographic, tamper-proof sealed bidding powered by Solana Anchor PDA state machines, OCDS 1.1 canonical hashing, and strict commercial secrecy.
+            Sealed bids for public contracts — locked by Solana time, not by trust in a database. No late inserts. No price leaks. No rigged awards.
           </p>
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button onclick="runCompleteDemoPipeline()" class="bt-btn bt-btn-primary">⚡ Try 1-click demo (2 min)</button>
+            <button onclick="switchPortal('buyer')" class="bt-btn bt-btn-ghost">🏛️ Create a tender</button>
+            <button onclick="switchPortal('auditor')" class="bt-btn bt-btn-ghost">🛡️ Verify audit trail</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 text-[11px]">
+            <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800 flex gap-2"><span class="bt-step-num">1</span><span class="text-slate-300"><strong class="text-white">Seal</strong> — bids locked before deadline</span></div>
+            <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800 flex gap-2"><span class="bt-step-num">2</span><span class="text-slate-300"><strong class="text-white">Score blind</strong> — outlier grades pruned</span></div>
+            <div class="p-2.5 rounded-lg bg-black/40 border border-slate-800 flex gap-2"><span class="bt-step-num">3</span><span class="text-slate-300"><strong class="text-white">Award & prove</strong> — QCBS math + dossier</span></div>
+          </div>
         </div>
 
         <!-- 4-Column Live Telemetry Badges -->
@@ -242,20 +326,20 @@
     <!-- ======================================================================= -->
     <!-- 3-MINUTE DEMO STORYBOARD HUD (SCREEN-RECORDING SUPERPOWER)              -->
     <!-- ======================================================================= -->
-    <section class="sticky top-2 z-40 bg-slate-900/95 backdrop-blur-md border border-cyan-500/30 rounded-xl p-4 shadow-xl hud-glow">
+    <section class="sticky top-2 z-40 bg-slate-900/95 backdrop-blur-md border border-cyan-500/30 rounded-xl p-4 shadow-xl hud-glow" aria-label="Guided demo steps">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 pulse-badge"></span>
-            <h2 class="text-xs md:text-sm font-bold text-white uppercase tracking-wider">
-              ⚡ 3-Minute Hackathon Demo Storyboard
+            <h2 class="font-display text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+              Your guided flow — 5 steps
             </h2>
             <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono">
-              Guided 1-Click Sequence
+              1-click or step-by-step
             </span>
           </div>
           <p class="text-[11px] text-slate-400 hidden sm:block">
-            Click through steps 1–5 to automatically drive the pitch narrative, switch role portals, and demonstrate on-chain defenses.
+            Follow 1 → 5. We switch screens for you and explain each defense in plain language.
           </p>
         </div>
 
@@ -326,27 +410,27 @@
     <!-- ======================================================================= -->
     <!-- PORTAL NAVIGATION TABS                                                  -->
     <!-- ======================================================================= -->
-    <nav class="flex items-center gap-1 border-b border-slate-800 pb-3 overflow-x-auto custom-scroll">
-      <button id="tab-buyer" onclick="switchPortal('buyer')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/40 cursor-pointer whitespace-nowrap">
-        <span>🏛️ Buyer Portal</span>
+    <nav class="flex items-center gap-1 border-b border-slate-800 pb-3 overflow-x-auto custom-scroll" aria-label="BidTrace sections">
+      <button id="tab-buyer" onclick="switchPortal('buyer')" title="Step 1: Create tender" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/40 cursor-pointer whitespace-nowrap">
+        <span>🏛️ 1. Create</span>
       </button>
-      <button id="tab-bidder" onclick="switchPortal('bidder')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>💼 Bidder Portal</span>
+      <button id="tab-bidder" onclick="switchPortal('bidder')" title="Step 2: Submit sealed bids" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>💼 2. Bid</span>
       </button>
-      <button id="tab-evaluator" onclick="switchPortal('evaluator')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>⚖️ Evaluator Portal</span>
+      <button id="tab-evaluator" onclick="switchPortal('evaluator')" title="Step 3: Blind scoring" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>⚖️ 3. Score</span>
       </button>
-      <button id="tab-award" onclick="switchPortal('award')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>💰 Financial & QCBS Award</span>
+      <button id="tab-award" onclick="switchPortal('award')" title="Step 4: Open prices and award" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>💰 4. Award</span>
       </button>
-      <button id="tab-auditor" onclick="switchPortal('auditor')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>🛡️ Tribunal Auditor & Explorer</span>
+      <button id="tab-auditor" onclick="switchPortal('auditor')" title="Step 5: Verify audit trail" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>🛡️ 5. Verify</span>
       </button>
-      <button id="tab-demo" onclick="switchPortal('demo')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>⚡ 1-Click Demo & Attacks</span>
+      <button id="tab-demo" onclick="switchPortal('demo')" title="Try attacks and full demo" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>⚡ Demo & Security</span>
       </button>
-      <button id="tab-devnet" onclick="switchPortal('devnet')" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
-        <span>🔮 Solana Devnet Web3</span>
+      <button id="tab-devnet" data-bt-advanced onclick="switchPortal('devnet')" title="Advanced: Solana devnet tools" class="portal-tab px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 border border-transparent transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+        <span>🔮 Advanced</span>
       </button>
     </nav>
 
@@ -358,15 +442,25 @@
 
         <!-- Left 2 Cols: Tender Setup Form -->
         <div class="lg:col-span-2 space-y-5">
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 bt-card bt-card-hover">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                  <span>🏛️ Procurement Authority: Create Two-Envelope OCDS 1.1 Tender</span>
+                <h2 class="font-display text-sm font-bold text-white flex items-center gap-2">
+                  <span>🏛️ Create tender — it takes 30 seconds</span>
                 </h2>
-                <p class="text-xs text-slate-400">Initialize procurement parameters, publish international OCDS Notice, and commit authorized whitelist.</p>
+                <p class="text-xs text-slate-400">Pick a template, confirm budget, publish. Technical proof (OCDS + hashes) is automatic.</p>
               </div>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">OCDS 1.1 + RFC 8785</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">Step 1 of 5</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <label for="buyer-template" class="text-slate-300 font-semibold">Template:</label>
+              <select id="buyer-template" onchange="window.BidTraceUI && BidTraceUI.applyTemplate(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-xs">
+                <option value="highway-qcbs">Highway QCBS 70/30 (recommended)</option>
+                <option value="worldbank-open">World Bank Open 60/40</option>
+                <option value="epc-selective">Private EPC Selective 80/20</option>
+              </select>
+              <span class="bt-help">Templates set weights, cutoff and bond for you.</span>
             </div>
 
             <!-- Tender Fields -->
@@ -396,23 +490,27 @@
             <!-- QCBS Weights & Cutoff -->
             <div class="p-3.5 bg-black/40 border border-slate-800 rounded-lg space-y-3">
               <div class="text-xs font-bold text-cyan-300 flex items-center justify-between">
-                <span>QCBS (Quality- and Cost-Based Selection) Matrix</span>
-                <span class="mono text-[11px] text-cyan-400">70% Tech / 30% Fin</span>
+                <span>How the winner is picked</span>
+                <span class="mono text-[11px] text-cyan-400">70% quality / 30% price</span>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <p class="bt-help">Higher quality + lower price wins. Bidders below cutoff stay sealed forever.</p>
+              <details data-bt-advanced class="text-xs">
+                <summary class="cursor-pointer text-slate-300 hover:text-white select-none">Advanced: edit weights & cutoff</summary>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
                 <div>
-                  <label class="block text-slate-400 mb-1">Technical Weight</label>
+                  <label for="buyer-tech-weight" class="block text-slate-400 mb-1">Technical Weight</label>
                   <input id="buyer-tech-weight" type="number" step="0.05" value="0.70" class="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 mono text-slate-200">
                 </div>
                 <div>
-                  <label class="block text-slate-400 mb-1">Financial Weight</label>
+                  <label for="buyer-fin-weight" class="block text-slate-400 mb-1">Financial Weight</label>
                   <input id="buyer-fin-weight" type="number" step="0.05" value="0.30" class="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 mono text-slate-200">
                 </div>
                 <div>
-                  <label class="block text-slate-400 mb-1">Min Tech Cutoff</label>
+                  <label for="buyer-min-score" class="block text-slate-400 mb-1">Min Tech Cutoff</label>
                   <input id="buyer-min-score" type="number" value="75.0" class="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 mono text-slate-200">
                 </div>
               </div>
+              </details>
             </div>
 
             <!-- Administrative Due Diligence Mode -->
@@ -521,38 +619,39 @@
 
         <!-- Left 2 Cols: Two-Envelope Submission Form -->
         <div class="lg:col-span-2 space-y-5">
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 bt-card bt-card-hover">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                  <span>💼 Contractor Portal: Dual-Envelope Browser Encryption</span>
+                <h2 class="font-display text-sm font-bold text-white flex items-center gap-2">
+                  <span>💼 Submit your sealed bid — Step 2 of 5</span>
                 </h2>
-                <p class="text-xs text-slate-400">Plaintext files and pricing keys NEVER leave your browser. Generates portable air-gapped receipt.</p>
+                <p class="text-xs text-slate-400">Your price stays sealed until you qualify. Receipt auto-saves in this browser.</p>
               </div>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono">Two-Envelope AES/SHA</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono">Sealed</span>
             </div>
 
             <!-- Bidder Identity -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
-                <label class="block text-slate-400 mb-1 font-semibold">Contractor / Bidder Name</label>
-                <input id="bidder-input-name" type="text" value="ACME Infrastructure Corp" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
+                <label for="bidder-input-name" class="block text-slate-400 mb-1 font-semibold">Company name</label>
+                <input id="bidder-input-name" type="text" value="ACME Infrastructure Corp" autocomplete="organization" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200">
               </div>
               <div>
-                <label class="block text-slate-400 mb-1 font-semibold">Contractor Public Key</label>
-                <input id="bidder-input-pubkey" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 mono text-[11px]" placeholder="Auto-generated or Phantom pubkey">
+                <label for="bidder-input-pubkey" class="block text-slate-400 mb-1 font-semibold">Wallet address <span class="bt-help">(auto-filled)</span></label>
+                <input id="bidder-input-pubkey" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 mono text-[11px]" placeholder="Connect wallet above or auto-generated">
               </div>
             </div>
 
             <!-- Envelope A: Technical Proposal -->
             <div class="p-3.5 bg-black/40 border border-cyan-500/30 rounded-lg space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-cyan-300">Envelope A: Technical Specifications (Public Reveal Post-Lock)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 mono">K_tech + Salt_tech</span>
+                <span class="text-xs font-bold text-cyan-300">What you will build (revealed for scoring)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 mono">Part 1 of 2</span>
               </div>
+              <label for="bidder-tech-specs" class="bt-help">Describe materials, schedule, certifications in plain words.</label>
               <textarea id="bidder-tech-specs" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-300" placeholder="Technical specs...">High-durability structural specifications, seismically isolated steel girders, ISO 9001 quality compliance, 24-month critical path schedule.</textarea>
               <div class="text-[11px] text-slate-400 flex items-center justify-between">
-                <span>Technical Proposal Hash:</span>
+                <span>Fingerprint (SHA-256, computed live):</span>
                 <span id="bidder-tech-hash-display" class="mono text-cyan-400 text-[10px]">Auto-computed in browser</span>
               </div>
             </div>
@@ -560,8 +659,8 @@
             <!-- Envelope B: Financial Quotation (Commercial Secrecy) -->
             <div class="p-3.5 bg-black/40 border border-amber-500/30 rounded-lg space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-amber-300">Envelope B: Proprietary Financial Quotation (Commercial Secrecy Protected)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 mono">K_fin + Salt_fin</span>
+                <span class="text-xs font-bold text-amber-300">Your price (stays secret if you don't qualify)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 mono">Part 2 of 2</span>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
@@ -668,12 +767,12 @@
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                  <span>⚖️ Technical Evaluator: Blinded Rubrics & Isolation Commitments</span>
+                <h2 class="font-display text-sm font-bold text-white flex items-center gap-2">
+                  <span>⚖️ Score blind — Step 3 of 5</span>
                 </h2>
-                <p class="text-xs text-slate-400">Identity-redacted proposal evaluation. Evaluators commit salted score hashes in complete isolation.</p>
+                <p class="text-xs text-slate-400">You score anonymized proposals. Extreme scores are auto-pruned (&gt;20% from median).</p>
               </div>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">Blinded Rubrics</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">Anonymous</span>
             </div>
 
             <!-- Evaluator Selector -->
@@ -776,12 +875,12 @@
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                  <span>💰 Financial Opening & Programmatic QCBS Award Math</span>
+                <h2 class="font-display text-sm font-bold text-white flex items-center gap-2">
+                  <span>💰 Open prices & award — Step 4 of 5</span>
                 </h2>
-                <p class="text-xs text-slate-400">Envelope B unsealing gated strictly by technical cutoff (75.00%). Automated composite award calculation.</p>
+                <p class="text-xs text-slate-400">Only qualified bids open. Best quality-price mix wins automatically.</p>
               </div>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">Programmatic Award</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">Auto-math</span>
             </div>
 
             <!-- Gated Bidders Table -->
@@ -992,54 +1091,54 @@
         </div>
       </section>
 
-      <!-- 4 Adversarial Attack Playground Cards -->
+      <!-- 4 Security Checks (plain language) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Attack 1: Late Bid -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs bt-card bt-card-hover">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-300">Attack 1: Inject Late Bid Post-Deadline</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono">Temporal Defense</span>
+            <span class="font-bold text-white">✓ Late bid blocked</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 mono">Protected</span>
           </div>
-          <p class="text-[11px] text-slate-400">Adversary bribes backend clerk to backdate a bid submitted after the 14:50:00 UTC deadline.</p>
+          <p class="text-[11px] text-slate-400">Someone tries to sneak in a bid after closing. Solana time rejects it.</p>
           <button onclick="apiAttackLateBid()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition cursor-pointer">
-            Simulate Late Bid Attack
+            Try sneaking in late
           </button>
         </div>
 
         <!-- Attack 2: Rogue Bribery Evaluator -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs bt-card bt-card-hover">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-300">Attack 2: Rogue Evaluator Score Inflation</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono">Trimmed Mean Defense</span>
+            <span class="font-bold text-white">✓ Rigged score pruned</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 mono">Protected</span>
           </div>
-          <p class="text-[11px] text-slate-400">Corrupt evaluator scores a failing contractor at 98.00% to falsely boost their average score.</p>
+          <p class="text-[11px] text-slate-400">A bribed evaluator gives 98% to a friend. Extreme scores are auto-dropped.</p>
           <button onclick="apiAttackRogueScore()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition cursor-pointer">
-            Simulate Rogue Bribery Attack
+            Try rigging a score
           </button>
         </div>
 
         <!-- Attack 3: Tamper Price -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs bt-card bt-card-hover">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-300">Attack 3: Tamper Financial Quotation</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono">Preimage Defense</span>
+            <span class="font-bold text-white">✓ Price tamper caught</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 mono">Protected</span>
           </div>
-          <p class="text-[11px] text-slate-400">Malicious insider alters the revealed bid price by -$500,000 to win the financial evaluation.</p>
+          <p class="text-[11px] text-slate-400">Insider edits a price by −$500k. Hash check fails, opening halts.</p>
           <button onclick="apiAttackTamperPrice()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition cursor-pointer">
-            Simulate Tampered Price Attack
+            Try changing a price
           </button>
         </div>
 
         <!-- Attack 4: Commercial Secrecy Leak -->
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs bt-card bt-card-hover">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-rose-300">Attack 4: Leak Disqualified Pricing</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 mono">Secrecy Defense</span>
+            <span class="font-bold text-white">✓ Loser's price stays secret</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 mono">Protected</span>
           </div>
-          <p class="text-[11px] text-slate-400">Buyer attempts to inspect proprietary trade secrets and unit costs of a contractor who failed technical cutoff.</p>
+          <p class="text-[11px] text-slate-400">Someone peeks at a disqualified bid's price. Contract keeps it locked forever.</p>
           <button onclick="apiAttackLeakUnqualified()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg font-semibold text-xs transition cursor-pointer">
-            Simulate Commercial Secrecy Breach
+            Try peeking at secrets
           </button>
         </div>
 

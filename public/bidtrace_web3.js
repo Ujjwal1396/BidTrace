@@ -616,3 +616,5 @@ window.BidTraceWeb3 = {
   bytesToHex,
   hexToBytes
 };
+// Back-compat alias (dashboard historically used lowercase)
+window.bidtraceWeb3 = window.BidTraceWeb3;
